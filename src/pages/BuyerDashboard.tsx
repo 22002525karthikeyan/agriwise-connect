@@ -1,7 +1,9 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, ShoppingBag, Search, Heart, ShoppingCart, TrendingUp } from 'lucide-react';
+import { MapPin, ShoppingBag, Search } from 'lucide-react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { supabase } from '@/integrations/supabase/client';
 
 interface BuyerDashboardProps {
   fullName: string | null;
@@ -9,6 +11,55 @@ interface BuyerDashboardProps {
 }
 
 export default function BuyerDashboard({ fullName, onSignOut }: BuyerDashboardProps) {
+  const [categoryCounts, setCategoryCounts] = useState({
+    vegetables: 0,
+    fruits: 0,
+    grains: 0,
+    lands: 0,
+  });
+
+  useEffect(() => {
+    fetchCategoryCounts();
+  }, []);
+
+  const fetchCategoryCounts = async () => {
+    // Fetch produce counts by category
+    const { data: produceData } = await supabase
+      .from('marketplace_listings')
+      .select('crop_name')
+      .eq('is_available', true);
+
+    if (produceData) {
+      const vegetables = produceData.filter(p => 
+        ['tomato', 'potato', 'onion', 'carrot', 'cabbage', 'spinach', 'brinjal', 'cauliflower', 'beans', 'peas'].some(v => 
+          p.crop_name.toLowerCase().includes(v)
+        )
+      ).length;
+      const fruits = produceData.filter(p => 
+        ['mango', 'banana', 'apple', 'orange', 'grape', 'papaya', 'guava', 'pomegranate', 'watermelon'].some(f => 
+          p.crop_name.toLowerCase().includes(f)
+        )
+      ).length;
+      const grains = produceData.filter(p => 
+        ['rice', 'wheat', 'maize', 'corn', 'millet', 'barley', 'oats', 'sorghum'].some(g => 
+          p.crop_name.toLowerCase().includes(g)
+        )
+      ).length;
+
+      setCategoryCounts(prev => ({ ...prev, vegetables, fruits, grains }));
+    }
+
+    // Fetch lands count
+    const { count: landsCount } = await supabase
+      .from('lands')
+      .select('*', { count: 'exact', head: true })
+      .eq('is_available', true);
+
+    if (landsCount !== null) {
+      setCategoryCounts(prev => ({ ...prev, lands: landsCount }));
+    }
+  };
+
   const quickActions = [
     {
       title: 'Browse Lands',
@@ -26,17 +77,11 @@ export default function BuyerDashboard({ fullName, onSignOut }: BuyerDashboardPr
     },
   ];
 
-  const stats = [
-    { label: 'Saved Items', value: '8', icon: Heart, color: 'text-destructive' },
-    { label: 'Orders', value: '12', icon: ShoppingCart, color: 'text-primary' },
-    { label: 'Spent', value: '₹45,000', icon: TrendingUp, color: 'text-agri-gold' },
-  ];
-
   const featuredCategories = [
-    { name: 'Vegetables', emoji: '🥬', count: '150+ listings' },
-    { name: 'Fruits', emoji: '🍎', count: '80+ listings' },
-    { name: 'Grains', emoji: '🌾', count: '60+ listings' },
-    { name: 'Lands', emoji: '🏞️', count: '25+ available' },
+    { name: 'Vegetables', emoji: '🥬', count: categoryCounts.vegetables, href: '/marketplace?category=vegetables' },
+    { name: 'Fruits', emoji: '🍎', count: categoryCounts.fruits, href: '/marketplace?category=fruits' },
+    { name: 'Grains', emoji: '🌾', count: categoryCounts.grains, href: '/marketplace?category=grains' },
+    { name: 'Lands', emoji: '🏞️', count: categoryCounts.lands, href: '/lands' },
   ];
 
   return (
@@ -54,30 +99,19 @@ export default function BuyerDashboard({ fullName, onSignOut }: BuyerDashboardPr
           </p>
         </div>
 
-        {/* Stats Row */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          {stats.map((stat) => (
-            <Card key={stat.label} className="text-center">
-              <CardContent className="pt-6">
-                <stat.icon className={`w-8 h-8 mx-auto mb-2 ${stat.color}`} />
-                <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
         {/* Featured Categories */}
         <h2 className="text-xl font-serif font-semibold text-foreground mb-4">Browse Categories</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {featuredCategories.map((category) => (
-            <Card key={category.name} className="hover:shadow-card transition-all cursor-pointer hover:-translate-y-1">
-              <CardContent className="pt-6 text-center">
-                <span className="text-4xl mb-3 block">{category.emoji}</span>
-                <p className="font-semibold text-foreground">{category.name}</p>
-                <p className="text-xs text-muted-foreground">{category.count}</p>
-              </CardContent>
-            </Card>
+            <Link key={category.name} to={category.href}>
+              <Card className="hover:shadow-card transition-all cursor-pointer hover:-translate-y-1">
+                <CardContent className="pt-6 text-center">
+                  <span className="text-4xl mb-3 block">{category.emoji}</span>
+                  <p className="font-semibold text-foreground">{category.name}</p>
+                  <p className="text-xs text-muted-foreground">{category.count} listings</p>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
 

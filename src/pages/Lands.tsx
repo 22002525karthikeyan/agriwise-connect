@@ -10,10 +10,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, MapPin, Droplets, Ruler, Plus, Leaf } from 'lucide-react';
+import { ArrowLeft, MapPin, Droplets, Ruler, Plus, Leaf, MessageSquare } from 'lucide-react';
 
 interface Land {
   id: string;
+  owner_id: string;
   title: string;
   description: string | null;
   location: string;
@@ -30,6 +31,10 @@ export default function Lands() {
   const [lands, setLands] = useState<Land[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [contactDialogOpen, setContactDialogOpen] = useState(false);
+  const [selectedLand, setSelectedLand] = useState<Land | null>(null);
+  const [contactMessage, setContactMessage] = useState('');
+  
   const [newLand, setNewLand] = useState({
     title: '',
     description: '',
@@ -95,6 +100,34 @@ export default function Lands() {
         price_per_month: '',
       });
       fetchLands();
+    }
+  };
+
+  const handleContactOwner = async () => {
+    if (!user || !selectedLand) return;
+
+    const { error } = await supabase.from('buyer_inquiries').insert({
+      buyer_id: user.id,
+      seller_id: selectedLand.owner_id,
+      listing_type: 'land',
+      listing_id: selectedLand.id,
+      message: contactMessage || null,
+    });
+
+    if (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to send inquiry',
+        variant: 'destructive',
+      });
+    } else {
+      toast({
+        title: 'Inquiry Sent!',
+        description: 'The landowner will be notified of your interest',
+      });
+      setContactDialogOpen(false);
+      setContactMessage('');
+      setSelectedLand(null);
     }
   };
 
@@ -226,6 +259,33 @@ export default function Lands() {
         </div>
       </header>
 
+      {/* Contact Owner Dialog */}
+      <Dialog open={contactDialogOpen} onOpenChange={setContactDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-serif">Contact Landowner</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Send a message to the landowner about <span className="font-medium text-foreground">{selectedLand?.title}</span>
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="message">Message (optional)</Label>
+              <Textarea
+                id="message"
+                placeholder="I'm interested in renting this land..."
+                value={contactMessage}
+                onChange={(e) => setContactMessage(e.target.value)}
+              />
+            </div>
+            <Button onClick={handleContactOwner} className="w-full">
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Send Inquiry
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <main className="container mx-auto px-4 py-8">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
@@ -276,7 +336,16 @@ export default function Lands() {
                       <p className="text-2xl font-bold text-primary">₹{land.price_per_month.toLocaleString()}</p>
                       <p className="text-xs text-muted-foreground">per month</p>
                     </div>
-                    <Button>Contact Owner</Button>
+                    {profile?.role === 'buyer' && user && (
+                      <Button
+                        onClick={() => {
+                          setSelectedLand(land);
+                          setContactDialogOpen(true);
+                        }}
+                      >
+                        Contact Owner
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>

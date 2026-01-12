@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -10,10 +10,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, ShoppingBag, MapPin, Package, Plus, Leaf } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, MapPin, Package, Plus, Leaf, MessageSquare } from 'lucide-react';
 
 interface Listing {
   id: string;
+  seller_id: string;
   crop_name: string;
   quantity: number;
   unit: string;
@@ -26,9 +27,17 @@ interface Listing {
 export default function Marketplace() {
   const { user, profile } = useAuth();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const category = searchParams.get('category');
+  
   const [listings, setListings] = useState<Listing[]>([]);
+  const [filteredListings, setFilteredListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [contactDialogOpen, setContactDialogOpen] = useState(false);
+  const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
+  const [contactMessage, setContactMessage] = useState('');
+  
   const [newListing, setNewListing] = useState({
     crop_name: '',
     quantity: '',
@@ -38,9 +47,29 @@ export default function Marketplace() {
     location: '',
   });
 
+  const vegetables = ['tomato', 'potato', 'onion', 'carrot', 'cabbage', 'spinach', 'brinjal', 'cauliflower', 'beans', 'peas'];
+  const fruits = ['mango', 'banana', 'apple', 'orange', 'grape', 'papaya', 'guava', 'pomegranate', 'watermelon'];
+  const grains = ['rice', 'wheat', 'maize', 'corn', 'millet', 'barley', 'oats', 'sorghum'];
+
   useEffect(() => {
     fetchListings();
   }, []);
+
+  useEffect(() => {
+    if (category && listings.length > 0) {
+      let filtered = listings;
+      if (category === 'vegetables') {
+        filtered = listings.filter(l => vegetables.some(v => l.crop_name.toLowerCase().includes(v)));
+      } else if (category === 'fruits') {
+        filtered = listings.filter(l => fruits.some(f => l.crop_name.toLowerCase().includes(f)));
+      } else if (category === 'grains') {
+        filtered = listings.filter(l => grains.some(g => l.crop_name.toLowerCase().includes(g)));
+      }
+      setFilteredListings(filtered);
+    } else {
+      setFilteredListings(listings);
+    }
+  }, [category, listings]);
 
   const fetchListings = async () => {
     setIsLoading(true);
@@ -94,6 +123,34 @@ export default function Marketplace() {
     }
   };
 
+  const handleContactSeller = async () => {
+    if (!user || !selectedListing) return;
+
+    const { error } = await supabase.from('buyer_inquiries').insert({
+      buyer_id: user.id,
+      seller_id: selectedListing.seller_id,
+      listing_type: 'produce',
+      listing_id: selectedListing.id,
+      message: contactMessage || null,
+    });
+
+    if (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to send inquiry',
+        variant: 'destructive',
+      });
+    } else {
+      toast({
+        title: 'Inquiry Sent!',
+        description: 'The seller will be notified of your interest',
+      });
+      setContactDialogOpen(false);
+      setContactMessage('');
+      setSelectedListing(null);
+    }
+  };
+
   const getCropEmoji = (crop: string) => {
     const emojis: Record<string, string> = {
       rice: '🌾',
@@ -108,6 +165,13 @@ export default function Marketplace() {
       banana: '🍌',
     };
     return emojis[crop.toLowerCase()] || '🌿';
+  };
+
+  const getCategoryTitle = () => {
+    if (category === 'vegetables') return 'Vegetables';
+    if (category === 'fruits') return 'Fruits';
+    if (category === 'grains') return 'Grains';
+    return 'Marketplace';
   };
 
   return (
@@ -125,7 +189,7 @@ export default function Marketplace() {
                   <ShoppingBag className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <h1 className="text-lg font-serif font-bold text-foreground">Marketplace</h1>
+                  <h1 className="text-lg font-serif font-bold text-foreground">{getCategoryTitle()}</h1>
                   <p className="text-xs text-muted-foreground">Buy and sell fresh produce</p>
                 </div>
               </div>
@@ -219,6 +283,33 @@ export default function Marketplace() {
         </div>
       </header>
 
+      {/* Contact Seller Dialog */}
+      <Dialog open={contactDialogOpen} onOpenChange={setContactDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-serif">Contact Seller</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Send a message to the seller about <span className="font-medium text-foreground">{selectedListing?.crop_name}</span>
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="message">Message (optional)</Label>
+              <Textarea
+                id="message"
+                placeholder="I'm interested in buying this produce..."
+                value={contactMessage}
+                onChange={(e) => setContactMessage(e.target.value)}
+              />
+            </div>
+            <Button onClick={handleContactSeller} className="w-full">
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Send Inquiry
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <main className="container mx-auto px-4 py-8">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
@@ -227,7 +318,7 @@ export default function Marketplace() {
               <p className="text-muted-foreground">Loading marketplace...</p>
             </div>
           </div>
-        ) : listings.length === 0 ? (
+        ) : filteredListings.length === 0 ? (
           <Card>
             <CardContent className="text-center py-12">
               <ShoppingBag className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
@@ -237,7 +328,7 @@ export default function Marketplace() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {listings.map((listing) => (
+            {filteredListings.map((listing) => (
               <Card key={listing.id} className="overflow-hidden hover:shadow-card transition-shadow group">
                 <div className="h-40 bg-gradient-to-br from-accent to-muted flex items-center justify-center text-6xl group-hover:scale-110 transition-transform">
                   {getCropEmoji(listing.crop_name)}
@@ -268,7 +359,17 @@ export default function Marketplace() {
                       <p className="text-2xl font-bold text-primary">₹{listing.price_per_unit}</p>
                       <p className="text-xs text-muted-foreground">per {listing.unit}</p>
                     </div>
-                    <Button size="sm">Contact Seller</Button>
+                    {profile?.role === 'buyer' && user && (
+                      <Button 
+                        size="sm"
+                        onClick={() => {
+                          setSelectedListing(listing);
+                          setContactDialogOpen(true);
+                        }}
+                      >
+                        Contact Seller
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Sprout, Bug, Droplets, ShoppingBag, TrendingUp, Wheat, Package, BarChart3 } from 'lucide-react';
+import { Sprout, Bug, Droplets, ShoppingBag, TrendingUp } from 'lucide-react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { WeatherCard } from '@/components/dashboard/WeatherCard';
 
@@ -48,12 +48,6 @@ export default function FarmerDashboard({ fullName, onSignOut }: FarmerDashboard
     },
   ];
 
-  const stats = [
-    { label: 'Active Crops', value: '3', icon: Wheat, color: 'text-agri-leaf' },
-    { label: 'Listings', value: '5', icon: Package, color: 'text-primary' },
-    { label: 'This Month', value: '₹12,500', icon: BarChart3, color: 'text-agri-gold' },
-  ];
-
   return (
     <div className="min-h-screen bg-background">
       <DashboardHeader fullName={fullName} role="farmer" onSignOut={onSignOut} />
@@ -67,19 +61,6 @@ export default function FarmerDashboard({ fullName, onSignOut }: FarmerDashboard
           <p className="text-muted-foreground">
             Manage your crops, get AI-powered insights, and sell directly to buyers.
           </p>
-        </div>
-
-        {/* Stats Row */}
-        <div className="grid grid-cols-3 gap-4 mb-8">
-          {stats.map((stat) => (
-            <Card key={stat.label} className="text-center">
-              <CardContent className="pt-6">
-                <stat.icon className={`w-8 h-8 mx-auto mb-2 ${stat.color}`} />
-                <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
-              </CardContent>
-            </Card>
-          ))}
         </div>
 
         {/* Weather Card */}

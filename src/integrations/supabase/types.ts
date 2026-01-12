@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      buyer_inquiries: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          listing_id: string
+          listing_type: string
+          message: string | null
+          seller_id: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          listing_id: string
+          listing_type: string
+          message?: string | null
+          seller_id: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          listing_id?: string
+          listing_type?: string
+          message?: string | null
+          seller_id?: string
+        }
+        Relationships: []
+      }
       crop_predictions: {
         Row: {
           confidence: number | null

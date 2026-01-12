@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MapPin, Plus, Eye, DollarSign, Layers, TrendingUp } from 'lucide-react';
+import { MapPin, Plus, Eye, Layers, TrendingUp, Bell, CheckCircle } from 'lucide-react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -22,14 +22,28 @@ interface Land {
   soil_type: string | null;
 }
 
+interface Inquiry {
+  id: string;
+  buyer_id: string;
+  listing_id: string;
+  listing_type: string;
+  message: string | null;
+  is_read: boolean;
+  created_at: string;
+  buyer_name?: string;
+  land_title?: string;
+}
+
 export default function LandownerDashboard({ fullName, onSignOut }: LandownerDashboardProps) {
   const { user } = useAuth();
   const [lands, setLands] = useState<Land[]>([]);
+  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
       fetchMyLands();
+      fetchInquiries();
     }
   }, [user]);
 
@@ -48,10 +62,60 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
     setLoading(false);
   };
 
+  const fetchInquiries = async () => {
+    if (!user) return;
+    
+    const { data, error } = await supabase
+      .from('buyer_inquiries')
+      .select('*')
+      .eq('seller_id', user.id)
+      .eq('listing_type', 'land')
+      .order('created_at', { ascending: false });
+
+    if (!error && data) {
+      // Fetch buyer names and land titles
+      const enrichedInquiries = await Promise.all(
+        data.map(async (inquiry) => {
+          const { data: buyerData } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', inquiry.buyer_id)
+            .single();
+
+          const { data: landData } = await supabase
+            .from('lands')
+            .select('title')
+            .eq('id', inquiry.listing_id)
+            .single();
+
+          return {
+            ...inquiry,
+            buyer_name: buyerData?.full_name || 'Unknown Buyer',
+            land_title: landData?.title || 'Unknown Land',
+          };
+        })
+      );
+      setInquiries(enrichedInquiries);
+    }
+  };
+
+  const markAsRead = async (inquiryId: string) => {
+    await supabase
+      .from('buyer_inquiries')
+      .update({ is_read: true })
+      .eq('id', inquiryId);
+    
+    setInquiries(prev => prev.map(inq => 
+      inq.id === inquiryId ? { ...inq, is_read: true } : inq
+    ));
+  };
+
+  const unreadCount = inquiries.filter(i => !i.is_read).length;
+
   const stats = [
     { label: 'Total Lands', value: lands.length.toString(), icon: Layers, color: 'text-agri-earth' },
     { label: 'Available', value: lands.filter(l => l.is_available).length.toString(), icon: Eye, color: 'text-agri-leaf' },
-    { label: 'Total Area', value: `${lands.reduce((sum, l) => sum + l.area_acres, 0)} acres`, icon: MapPin, color: 'text-primary' },
+    { label: 'New Inquiries', value: unreadCount.toString(), icon: Bell, color: 'text-primary' },
   ];
 
   return (
@@ -89,6 +153,58 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
             </Card>
           ))}
         </div>
+
+        {/* Notifications Card */}
+        {inquiries.length > 0 && (
+          <Card className="mb-8 border-primary/20">
+            <CardHeader>
+              <CardTitle className="font-serif flex items-center gap-2">
+                <Bell className="w-5 h-5 text-primary" />
+                Buyer Inquiries
+                {unreadCount > 0 && (
+                  <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
+                    {unreadCount} new
+                  </span>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {inquiries.slice(0, 5).map((inquiry) => (
+                <div 
+                  key={inquiry.id} 
+                  className={`p-4 rounded-lg border ${!inquiry.is_read ? 'bg-primary/5 border-primary/20' : 'bg-muted/50'}`}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <p className="font-medium text-foreground">
+                        {inquiry.buyer_name} is interested in <span className="text-primary">{inquiry.land_title}</span>
+                      </p>
+                      {inquiry.message && (
+                        <p className="text-sm text-muted-foreground mt-1">"{inquiry.message}"</p>
+                      )}
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {new Date(inquiry.created_at).toLocaleDateString('en-IN', { 
+                          day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
+                    {!inquiry.is_read && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => markAsRead(inquiry.id)}
+                        className="text-primary"
+                      >
+                        <CheckCircle className="w-4 h-4 mr-1" />
+                        Mark Read
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
 
         {/* Revenue Card */}
         <Card className="mb-8 bg-gradient-hero text-primary-foreground shadow-elevated">
