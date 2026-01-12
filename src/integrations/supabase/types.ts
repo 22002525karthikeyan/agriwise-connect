@@ -176,6 +176,38 @@ export type Database = {
         }
         Relationships: []
       }
+      inquiry_messages: {
+        Row: {
+          created_at: string
+          id: string
+          inquiry_id: string
+          message: string
+          sender_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          inquiry_id: string
+          message: string
+          sender_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          inquiry_id?: string
+          message?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inquiry_messages_inquiry_id_fkey"
+            columns: ["inquiry_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_inquiries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lands: {
         Row: {
           area_acres: number
@@ -266,6 +298,51 @@ export type Database = {
           seller_id?: string
           unit?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          id: string
+          listing_id: string
+          payment_intent_id: string | null
+          payment_status: string
+          quantity: number
+          seller_id: string
+          status: string
+          total_amount: number
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          id?: string
+          listing_id: string
+          payment_intent_id?: string | null
+          payment_status?: string
+          quantity: number
+          seller_id: string
+          status?: string
+          total_amount: number
+          unit: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          listing_id?: string
+          payment_intent_id?: string | null
+          payment_status?: string
+          quantity?: number
+          seller_id?: string
+          status?: string
+          total_amount?: number
+          unit?: string
+          updated_at?: string
         }
         Relationships: []
       }
