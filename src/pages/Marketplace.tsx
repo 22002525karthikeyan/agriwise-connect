@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, ShoppingBag, MapPin, Package, Plus, Leaf, MessageSquare } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, MapPin, Package, Plus, Leaf, ShoppingCart, Minus } from 'lucide-react';
 
 interface Listing {
   id: string;
@@ -34,9 +34,10 @@ export default function Marketplace() {
   const [filteredListings, setFilteredListings] = useState<Listing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [contactDialogOpen, setContactDialogOpen] = useState(false);
+  const [buyDialogOpen, setBuyDialogOpen] = useState(false);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
-  const [contactMessage, setContactMessage] = useState('');
+  const [orderQuantity, setOrderQuantity] = useState(1);
+  const [isOrdering, setIsOrdering] = useState(false);
   
   const [newListing, setNewListing] = useState({
     crop_name: '',
@@ -123,32 +124,60 @@ export default function Marketplace() {
     }
   };
 
-  const handleContactSeller = async () => {
+  const handlePlaceOrder = async () => {
     if (!user || !selectedListing) return;
 
-    const { error } = await supabase.from('buyer_inquiries').insert({
+    if (orderQuantity > selectedListing.quantity) {
+      toast({
+        title: 'Insufficient stock',
+        description: `Only ${selectedListing.quantity} ${selectedListing.unit} available`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsOrdering(true);
+
+    const totalAmount = orderQuantity * selectedListing.price_per_unit;
+
+    const { error } = await supabase.from('orders').insert({
       buyer_id: user.id,
       seller_id: selectedListing.seller_id,
-      listing_type: 'produce',
       listing_id: selectedListing.id,
-      message: contactMessage || null,
+      quantity: orderQuantity,
+      unit: selectedListing.unit,
+      total_amount: totalAmount,
+      status: 'pending',
+      payment_status: 'pending',
     });
 
     if (error) {
       toast({
         title: 'Error',
-        description: 'Failed to send inquiry',
+        description: 'Failed to place order',
         variant: 'destructive',
       });
     } else {
+      // Update listing quantity
+      const newQuantity = selectedListing.quantity - orderQuantity;
+      await supabase
+        .from('marketplace_listings')
+        .update({ 
+          quantity: newQuantity,
+          is_available: newQuantity > 0 
+        })
+        .eq('id', selectedListing.id);
+
       toast({
-        title: 'Inquiry Sent!',
-        description: 'The seller will be notified of your interest',
+        title: 'Order Placed! 🎉',
+        description: `Your order for ${orderQuantity} ${selectedListing.unit} of ${selectedListing.crop_name} has been placed. Total: ₹${totalAmount}`,
       });
-      setContactDialogOpen(false);
-      setContactMessage('');
+      setBuyDialogOpen(false);
+      setOrderQuantity(1);
       setSelectedListing(null);
+      fetchListings();
     }
+    setIsOrdering(false);
   };
 
   const getCropEmoji = (crop: string) => {
@@ -163,6 +192,11 @@ export default function Marketplace() {
       apple: '🍎',
       mango: '🥭',
       banana: '🍌',
+      orange: '🍊',
+      grape: '🍇',
+      spinach: '🥬',
+      cabbage: '🥬',
+      beans: '🫘',
     };
     return emojis[crop.toLowerCase()] || '🌿';
   };
@@ -172,6 +206,12 @@ export default function Marketplace() {
     if (category === 'fruits') return 'Fruits';
     if (category === 'grains') return 'Grains';
     return 'Marketplace';
+  };
+
+  const openBuyDialog = (listing: Listing) => {
+    setSelectedListing(listing);
+    setOrderQuantity(1);
+    setBuyDialogOpen(true);
   };
 
   return (
@@ -283,30 +323,112 @@ export default function Marketplace() {
         </div>
       </header>
 
-      {/* Contact Seller Dialog */}
-      <Dialog open={contactDialogOpen} onOpenChange={setContactDialogOpen}>
-        <DialogContent>
+      {/* Buy Dialog */}
+      <Dialog open={buyDialogOpen} onOpenChange={setBuyDialogOpen}>
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="font-serif">Contact Seller</DialogTitle>
+            <DialogTitle className="font-serif flex items-center gap-2">
+              <ShoppingCart className="w-5 h-5 text-primary" />
+              Buy {selectedListing?.crop_name}
+            </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Send a message to the seller about <span className="font-medium text-foreground">{selectedListing?.crop_name}</span>
-            </p>
-            <div className="space-y-2">
-              <Label htmlFor="message">Message (optional)</Label>
-              <Textarea
-                id="message"
-                placeholder="I'm interested in buying this produce..."
-                value={contactMessage}
-                onChange={(e) => setContactMessage(e.target.value)}
-              />
+          {selectedListing && (
+            <div className="space-y-6">
+              {/* Product Summary */}
+              <div className="flex items-center gap-4 p-4 bg-muted rounded-xl">
+                <span className="text-4xl">{getCropEmoji(selectedListing.crop_name)}</span>
+                <div>
+                  <h3 className="font-semibold capitalize">{selectedListing.crop_name}</h3>
+                  <p className="text-sm text-muted-foreground">
+                    ₹{selectedListing.price_per_unit} per {selectedListing.unit}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Available: {selectedListing.quantity} {selectedListing.unit}
+                  </p>
+                </div>
+              </div>
+
+              {/* Quantity Selector */}
+              <div className="space-y-3">
+                <Label>Select Quantity ({selectedListing.unit})</Label>
+                <div className="flex items-center gap-4">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setOrderQuantity(Math.max(1, orderQuantity - 1))}
+                    disabled={orderQuantity <= 1}
+                  >
+                    <Minus className="w-4 h-4" />
+                  </Button>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={selectedListing.quantity}
+                    value={orderQuantity}
+                    onChange={(e) => {
+                      const val = Math.min(
+                        Math.max(1, parseInt(e.target.value) || 1),
+                        selectedListing.quantity
+                      );
+                      setOrderQuantity(val);
+                    }}
+                    className="w-24 text-center text-lg font-semibold"
+                  />
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setOrderQuantity(Math.min(selectedListing.quantity, orderQuantity + 1))}
+                    disabled={orderQuantity >= selectedListing.quantity}
+                  >
+                    <Plus className="w-4 h-4" />
+                  </Button>
+                </div>
+                {orderQuantity > selectedListing.quantity && (
+                  <p className="text-sm text-destructive">
+                    Maximum available: {selectedListing.quantity} {selectedListing.unit}
+                  </p>
+                )}
+              </div>
+
+              {/* Order Summary */}
+              <div className="border-t pt-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Price per {selectedListing.unit}</span>
+                  <span>₹{selectedListing.price_per_unit}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Quantity</span>
+                  <span>{orderQuantity} {selectedListing.unit}</span>
+                </div>
+                <div className="flex justify-between text-lg font-bold pt-2 border-t">
+                  <span>Total</span>
+                  <span className="text-primary">₹{(orderQuantity * selectedListing.price_per_unit).toLocaleString()}</span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <Button 
+                  variant="outline" 
+                  className="flex-1"
+                  onClick={() => setBuyDialogOpen(false)}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  className="flex-1"
+                  onClick={handlePlaceOrder}
+                  disabled={isOrdering || orderQuantity > selectedListing.quantity}
+                >
+                  {isOrdering ? 'Placing Order...' : 'Place Order'}
+                </Button>
+              </div>
+              
+              <p className="text-xs text-center text-muted-foreground">
+                Payment will be collected on delivery (COD)
+              </p>
             </div>
-            <Button onClick={handleContactSeller} className="w-full">
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Send Inquiry
-            </Button>
-          </div>
+          )}
         </DialogContent>
       </Dialog>
 
@@ -362,12 +484,10 @@ export default function Marketplace() {
                     {profile?.role === 'buyer' && user && (
                       <Button 
                         size="sm"
-                        onClick={() => {
-                          setSelectedListing(listing);
-                          setContactDialogOpen(true);
-                        }}
+                        onClick={() => openBuyDialog(listing)}
                       >
-                        Contact Seller
+                        <ShoppingCart className="w-4 h-4 mr-2" />
+                        Buy Now
                       </Button>
                     )}
                   </div>
