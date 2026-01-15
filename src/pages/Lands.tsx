@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, MapPin, Droplets, Ruler, Plus, Leaf, MessageSquare } from 'lucide-react';
+import { ArrowLeft, MapPin, Droplets, Ruler, Plus, Leaf, Phone, Mail, User, MessageSquare } from 'lucide-react';
 
 interface Land {
   id: string;
@@ -25,6 +25,12 @@ interface Land {
   image_url: string | null;
 }
 
+interface OwnerContact {
+  full_name: string | null;
+  phone: string | null;
+  email: string;
+}
+
 export default function Lands() {
   const { user, profile } = useAuth();
   const { toast } = useToast();
@@ -33,7 +39,8 @@ export default function Lands() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
   const [selectedLand, setSelectedLand] = useState<Land | null>(null);
-  const [contactMessage, setContactMessage] = useState('');
+  const [ownerContact, setOwnerContact] = useState<OwnerContact | null>(null);
+  const [loadingContact, setLoadingContact] = useState(false);
   
   const [newLand, setNewLand] = useState({
     title: '',
@@ -103,31 +110,32 @@ export default function Lands() {
     }
   };
 
-  const handleContactOwner = async () => {
-    if (!user || !selectedLand) return;
+  const handleContactOwner = async (land: Land) => {
+    setSelectedLand(land);
+    setLoadingContact(true);
+    setContactDialogOpen(true);
 
-    const { error } = await supabase.from('buyer_inquiries').insert({
-      buyer_id: user.id,
-      seller_id: selectedLand.owner_id,
-      listing_type: 'land',
-      listing_id: selectedLand.id,
-      message: contactMessage || null,
-    });
+    // Fetch owner contact details
+    const { data } = await supabase
+      .from('profiles')
+      .select('full_name, phone, email')
+      .eq('id', land.owner_id)
+      .single();
 
-    if (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to send inquiry',
-        variant: 'destructive',
+    if (data) {
+      setOwnerContact(data);
+    }
+    setLoadingContact(false);
+
+    // Also create an inquiry record
+    if (user) {
+      await supabase.from('buyer_inquiries').insert({
+        buyer_id: user.id,
+        seller_id: land.owner_id,
+        listing_type: 'land',
+        listing_id: land.id,
+        message: 'Viewed contact details',
       });
-    } else {
-      toast({
-        title: 'Inquiry Sent!',
-        description: 'The landowner will be notified of your interest',
-      });
-      setContactDialogOpen(false);
-      setContactMessage('');
-      setSelectedLand(null);
     }
   };
 
@@ -259,30 +267,81 @@ export default function Lands() {
         </div>
       </header>
 
-      {/* Contact Owner Dialog */}
+      {/* Contact Owner Dialog - Shows contact details */}
       <Dialog open={contactDialogOpen} onOpenChange={setContactDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="font-serif">Contact Landowner</DialogTitle>
+            <DialogTitle className="font-serif flex items-center gap-2">
+              <User className="w-5 h-5 text-primary" />
+              Landowner Contact
+            </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Send a message to the landowner about <span className="font-medium text-foreground">{selectedLand?.title}</span>
-            </p>
-            <div className="space-y-2">
-              <Label htmlFor="message">Message (optional)</Label>
-              <Textarea
-                id="message"
-                placeholder="I'm interested in renting this land..."
-                value={contactMessage}
-                onChange={(e) => setContactMessage(e.target.value)}
-              />
+          {loadingContact ? (
+            <div className="py-8 text-center text-muted-foreground">Loading contact details...</div>
+          ) : (
+            <div className="space-y-4">
+              <div className="p-4 bg-muted rounded-xl">
+                <p className="text-sm text-muted-foreground mb-1">Land</p>
+                <p className="font-semibold text-foreground">{selectedLand?.title}</p>
+                <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
+                  <MapPin className="w-3 h-3" />
+                  {selectedLand?.location}
+                </p>
+              </div>
+
+              {ownerContact?.phone ? (
+                <div className="space-y-3">
+                  <div className="p-4 border rounded-xl space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <User className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-foreground">{ownerContact.full_name || 'Landowner'}</p>
+                        <p className="text-sm text-muted-foreground">Property Owner</p>
+                      </div>
+                    </div>
+                    <div className="border-t pt-3 space-y-2">
+                      <a 
+                        href={`tel:${ownerContact.phone}`}
+                        className="flex items-center gap-3 p-3 bg-agri-leaf/10 rounded-lg hover:bg-agri-leaf/20 transition-colors"
+                      >
+                        <Phone className="w-5 h-5 text-agri-leaf" />
+                        <div>
+                          <p className="text-sm text-muted-foreground">Phone</p>
+                          <p className="font-medium text-foreground">{ownerContact.phone}</p>
+                        </div>
+                      </a>
+                      <a 
+                        href={`mailto:${ownerContact.email}`}
+                        className="flex items-center gap-3 p-3 bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
+                      >
+                        <Mail className="w-5 h-5 text-primary" />
+                        <div>
+                          <p className="text-sm text-muted-foreground">Email</p>
+                          <p className="font-medium text-foreground">{ownerContact.email}</p>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <p className="text-xs text-center text-muted-foreground">
+                    Contact the landowner directly to discuss the property
+                  </p>
+                </div>
+              ) : (
+                <div className="text-center py-6">
+                  <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                    <Phone className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <h3 className="font-medium text-foreground mb-2">Contact Not Available</h3>
+                  <p className="text-sm text-muted-foreground">
+                    The landowner has not added their contact details yet. 
+                    Please check back later.
+                  </p>
+                </div>
+              )}
             </div>
-            <Button onClick={handleContactOwner} className="w-full">
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Send Inquiry
-            </Button>
-          </div>
+          )}
         </DialogContent>
       </Dialog>
 
@@ -337,13 +396,9 @@ export default function Lands() {
                       <p className="text-xs text-muted-foreground">per month</p>
                     </div>
                     {profile?.role === 'buyer' && user && (
-                      <Button
-                        onClick={() => {
-                          setSelectedLand(land);
-                          setContactDialogOpen(true);
-                        }}
-                      >
-                        Contact Owner
+                      <Button onClick={() => handleContactOwner(land)}>
+                        <Phone className="w-4 h-4 mr-2" />
+                        Get Contact
                       </Button>
                     )}
                   </div>
