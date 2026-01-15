@@ -2,10 +2,14 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MapPin, Plus, Eye, Layers, TrendingUp, Bell, CheckCircle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { MapPin, Plus, Eye, Layers, TrendingUp, Bell, CheckCircle, User, Phone, Mail, Edit } from 'lucide-react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 interface LandownerDashboardProps {
   fullName: string | null;
@@ -34,18 +38,79 @@ interface Inquiry {
   land_title?: string;
 }
 
+interface ProfileData {
+  full_name: string | null;
+  phone: string | null;
+  email: string;
+}
+
 export default function LandownerDashboard({ fullName, onSignOut }: LandownerDashboardProps) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const { toast } = useToast();
   const [lands, setLands] = useState<Land[]>([]);
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
+  const [profileData, setProfileData] = useState<ProfileData>({
+    full_name: '',
+    phone: '',
+    email: '',
+  });
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     if (user) {
       fetchMyLands();
       fetchInquiries();
+      fetchProfileData();
     }
   }, [user]);
+
+  const fetchProfileData = async () => {
+    if (!user) return;
+    
+    const { data } = await supabase
+      .from('profiles')
+      .select('full_name, phone, email')
+      .eq('id', user.id)
+      .single();
+
+    if (data) {
+      setProfileData({
+        full_name: data.full_name || '',
+        phone: data.phone || '',
+        email: data.email || '',
+      });
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    if (!user) return;
+    setIsSaving(true);
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        full_name: profileData.full_name,
+        phone: profileData.phone,
+      })
+      .eq('id', user.id);
+
+    if (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to update profile',
+        variant: 'destructive',
+      });
+    } else {
+      toast({
+        title: 'Profile Updated!',
+        description: 'Your contact details have been saved. Buyers can now see your contact information.',
+      });
+      setProfileDialogOpen(false);
+    }
+    setIsSaving(false);
+  };
 
   const fetchMyLands = async () => {
     if (!user) return;
@@ -111,6 +176,7 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
   };
 
   const unreadCount = inquiries.filter(i => !i.is_read).length;
+  const hasContactDetails = profileData.phone && profileData.phone.length > 0;
 
   const stats = [
     { label: 'Total Lands', value: lands.length.toString(), icon: Layers, color: 'text-agri-earth' },
@@ -133,13 +199,89 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
               Manage your land listings and connect with potential buyers.
             </p>
           </div>
-          <Link to="/lands">
-            <Button className="gap-2">
-              <Plus className="w-4 h-4" />
-              Add New Land
-            </Button>
-          </Link>
+          <div className="flex gap-3">
+            <Dialog open={profileDialogOpen} onOpenChange={setProfileDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <User className="w-4 h-4" />
+                  My Profile
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle className="font-serif flex items-center gap-2">
+                    <User className="w-5 h-5 text-primary" />
+                    Contact Details
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Add your contact details so buyers can reach you directly when interested in your land.
+                  </p>
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Full Name</Label>
+                    <Input
+                      id="fullName"
+                      value={profileData.full_name || ''}
+                      onChange={(e) => setProfileData({ ...profileData, full_name: e.target.value })}
+                      placeholder="Your full name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="phone">Phone Number *</Label>
+                    <Input
+                      id="phone"
+                      value={profileData.phone || ''}
+                      onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                      placeholder="+91 98765 43210"
+                    />
+                    <p className="text-xs text-muted-foreground">Buyers will see this to contact you</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      value={profileData.email}
+                      disabled
+                      className="bg-muted"
+                    />
+                    <p className="text-xs text-muted-foreground">Email cannot be changed</p>
+                  </div>
+                  <Button onClick={handleSaveProfile} className="w-full" disabled={isSaving}>
+                    {isSaving ? 'Saving...' : 'Save Contact Details'}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+            <Link to="/lands">
+              <Button className="gap-2">
+                <Plus className="w-4 h-4" />
+                Add New Land
+              </Button>
+            </Link>
+          </div>
         </div>
+
+        {/* Profile Alert */}
+        {!hasContactDetails && (
+          <Card className="mb-6 border-amber-500/50 bg-amber-50 dark:bg-amber-950/20">
+            <CardContent className="p-4 flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
+                  <Phone className="w-5 h-5 text-amber-600" />
+                </div>
+                <div>
+                  <p className="font-medium text-foreground">Add your contact details</p>
+                  <p className="text-sm text-muted-foreground">Buyers need your phone number to contact you about land listings</p>
+                </div>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => setProfileDialogOpen(true)}>
+                <Edit className="w-4 h-4 mr-2" />
+                Add Now
+              </Button>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Stats Row */}
         <div className="grid grid-cols-3 gap-4 mb-8">
@@ -307,7 +449,7 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-agri-leaf">✓</span>
-                Respond quickly to buyer inquiries for faster deals
+                Keep your contact details updated for faster communication
               </li>
             </ul>
           </CardContent>
