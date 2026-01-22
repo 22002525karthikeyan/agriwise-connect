@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Leaf, LogOut } from 'lucide-react';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 interface DashboardHeaderProps {
   fullName: string | null;
@@ -20,6 +21,7 @@ export function DashboardHeader({ fullName, role, onSignOut }: DashboardHeaderPr
             <span className="text-xl font-serif font-bold text-foreground">AgriSmart</span>
           </Link>
           <div className="flex items-center gap-4">
+            <LanguageSwitcher />
             <div className="text-right hidden sm:block">
               <p className="font-medium text-foreground">{fullName || 'User'}</p>
               <p className="text-xs text-muted-foreground capitalize">{role || 'user'}</p>
