@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, ShoppingBag, Search } from 'lucide-react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
@@ -11,6 +12,7 @@ interface BuyerDashboardProps {
 }
 
 export default function BuyerDashboard({ fullName, onSignOut }: BuyerDashboardProps) {
+  const { t } = useTranslation();
   const [categoryCounts, setCategoryCounts] = useState({
     vegetables: 0,
     fruits: 0,
@@ -62,15 +64,15 @@ export default function BuyerDashboard({ fullName, onSignOut }: BuyerDashboardPr
 
   const quickActions = [
     {
-      title: 'Browse Lands',
-      description: 'Explore agricultural lands available for purchase from verified landowners',
+      titleKey: 'buyer.browseLands',
+      descKey: 'features.landRentalDesc',
       icon: MapPin,
       href: '/lands',
       color: 'bg-agri-earth/10 text-agri-earth',
     },
     {
-      title: 'Fresh Produce',
-      description: 'Buy fresh vegetables, fruits, and grains directly from local farmers',
+      titleKey: 'buyer.freshProduce',
+      descKey: 'features.marketplaceDesc',
       icon: ShoppingBag,
       href: '/marketplace',
       color: 'bg-agri-leaf/10 text-agri-leaf',
@@ -78,10 +80,10 @@ export default function BuyerDashboard({ fullName, onSignOut }: BuyerDashboardPr
   ];
 
   const featuredCategories = [
-    { name: 'Vegetables', emoji: '🥬', count: categoryCounts.vegetables, href: '/marketplace?category=vegetables' },
-    { name: 'Fruits', emoji: '🍎', count: categoryCounts.fruits, href: '/marketplace?category=fruits' },
-    { name: 'Grains', emoji: '🌾', count: categoryCounts.grains, href: '/marketplace?category=grains' },
-    { name: 'Lands', emoji: '🏞️', count: categoryCounts.lands, href: '/lands' },
+    { nameKey: 'marketplace.vegetables', emoji: '🥬', count: categoryCounts.vegetables, href: '/marketplace?category=vegetables' },
+    { nameKey: 'marketplace.fruits', emoji: '🍎', count: categoryCounts.fruits, href: '/marketplace?category=fruits' },
+    { nameKey: 'marketplace.grains', emoji: '🌾', count: categoryCounts.grains, href: '/marketplace?category=grains' },
+    { nameKey: 'lands.title', emoji: '🏞️', count: categoryCounts.lands, href: '/lands' },
   ];
 
   return (
@@ -92,22 +94,22 @@ export default function BuyerDashboard({ fullName, onSignOut }: BuyerDashboardPr
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-3xl font-serif font-bold text-foreground mb-2">
-            Welcome, {fullName?.split(' ')[0] || 'Buyer'}! 🛒
+            {t('dashboard.welcome')}, {fullName?.split(' ')[0] || t('auth.buyer')}! 🛒
           </h1>
           <p className="text-muted-foreground">
-            Discover fresh produce and agricultural land directly from farmers and landowners.
+            {t('buyer.welcomeSubtitle')}
           </p>
         </div>
 
         {/* Featured Categories */}
-        <h2 className="text-xl font-serif font-semibold text-foreground mb-4">Browse Categories</h2>
+        <h2 className="text-xl font-serif font-semibold text-foreground mb-4">{t('buyer.featuredCategories')}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {featuredCategories.map((category) => (
-            <Link key={category.name} to={category.href}>
+            <Link key={category.nameKey} to={category.href}>
               <Card className="hover:shadow-card transition-all cursor-pointer hover:-translate-y-1">
                 <CardContent className="pt-6 text-center">
                   <span className="text-4xl mb-3 block">{category.emoji}</span>
-                  <p className="font-semibold text-foreground">{category.name}</p>
+                  <p className="font-semibold text-foreground">{t(category.nameKey)}</p>
                   <p className="text-xs text-muted-foreground">{category.count} listings</p>
                 </CardContent>
               </Card>
@@ -116,19 +118,19 @@ export default function BuyerDashboard({ fullName, onSignOut }: BuyerDashboardPr
         </div>
 
         {/* Quick Actions Grid */}
-        <h2 className="text-xl font-serif font-semibold text-foreground mb-4">Quick Actions</h2>
+        <h2 className="text-xl font-serif font-semibold text-foreground mb-4">{t('dashboard.quickActions')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {quickActions.map((action) => (
-            <Link key={action.title} to={action.href}>
+            <Link key={action.titleKey} to={action.href}>
               <Card className="h-full hover:shadow-card transition-all duration-300 hover:-translate-y-1 cursor-pointer group">
                 <CardHeader className="pb-3">
                   <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${action.color} mb-4 group-hover:scale-110 transition-transform`}>
                     <action.icon className="w-7 h-7" />
                   </div>
-                  <CardTitle className="text-xl font-serif">{action.title}</CardTitle>
+                  <CardTitle className="text-xl font-serif">{t(action.titleKey)}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription className="text-base">{action.description}</CardDescription>
+                  <CardDescription className="text-base">{t(action.descKey)}</CardDescription>
                 </CardContent>
               </Card>
             </Link>
@@ -139,15 +141,15 @@ export default function BuyerDashboard({ fullName, onSignOut }: BuyerDashboardPr
         <Card className="mt-8 bg-gradient-hero text-primary-foreground">
           <CardContent className="p-6 flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h3 className="text-xl font-serif font-semibold mb-1">Looking for something specific?</h3>
-              <p className="opacity-90">Search our marketplace for the freshest produce and best land deals.</p>
+              <h3 className="text-xl font-serif font-semibold mb-1">{t('buyer.searchPrompt')}</h3>
+              <p className="opacity-90">{t('buyer.searchDesc')}</p>
             </div>
             <Link 
               to="/marketplace" 
               className="flex items-center gap-2 bg-primary-foreground text-primary px-6 py-3 rounded-xl font-semibold hover:opacity-90 transition-opacity"
             >
               <Search className="w-5 h-5" />
-              Search Now
+              {t('common.search')}
             </Link>
           </CardContent>
         </Card>

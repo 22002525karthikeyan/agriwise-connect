@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { MapPin, Plus, Eye, Layers, TrendingUp, Bell, CheckCircle, User, Phone, Mail, Edit } from 'lucide-react';
+import { MapPin, Plus, Eye, Layers, TrendingUp, Bell, CheckCircle, User, Phone, Edit } from 'lucide-react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -45,7 +46,8 @@ interface ProfileData {
 }
 
 export default function LandownerDashboard({ fullName, onSignOut }: LandownerDashboardProps) {
-  const { user, profile } = useAuth();
+  const { t } = useTranslation();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [lands, setLands] = useState<Land[]>([]);
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
@@ -98,14 +100,14 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
 
     if (error) {
       toast({
-        title: 'Error',
-        description: 'Failed to update profile',
+        title: t('common.error') || 'Error',
+        description: t('landowner.profileUpdateError') || 'Failed to update profile',
         variant: 'destructive',
       });
     } else {
       toast({
-        title: 'Profile Updated!',
-        description: 'Your contact details have been saved. Buyers can now see your contact information.',
+        title: t('landowner.profileUpdated') || 'Profile Updated!',
+        description: t('landowner.profileUpdatedDesc') || 'Your contact details have been saved.',
       });
       setProfileDialogOpen(false);
     }
@@ -179,9 +181,9 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
   const hasContactDetails = profileData.phone && profileData.phone.length > 0;
 
   const stats = [
-    { label: 'Total Lands', value: lands.length.toString(), icon: Layers, color: 'text-agri-earth' },
-    { label: 'Available', value: lands.filter(l => l.is_available).length.toString(), icon: Eye, color: 'text-agri-leaf' },
-    { label: 'New Inquiries', value: unreadCount.toString(), icon: Bell, color: 'text-primary' },
+    { labelKey: 'landowner.totalLands', value: lands.length.toString(), icon: Layers, color: 'text-agri-earth' },
+    { labelKey: 'common.available', value: lands.filter(l => l.is_available).length.toString(), icon: Eye, color: 'text-agri-leaf' },
+    { labelKey: 'landowner.newInquiries', value: unreadCount.toString(), icon: Bell, color: 'text-primary' },
   ];
 
   return (
@@ -193,10 +195,10 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
         <div className="flex items-start justify-between mb-8 flex-wrap gap-4">
           <div>
             <h1 className="text-3xl font-serif font-bold text-foreground mb-2">
-              Welcome, {fullName?.split(' ')[0] || 'Landowner'}! 🏞️
+              {t('dashboard.welcome')}, {fullName?.split(' ')[0] || t('auth.landowner')}! 🏞️
             </h1>
             <p className="text-muted-foreground">
-              Manage your land listings and connect with potential buyers.
+              {t('landowner.dashboardSubtitle') || 'Manage your land listings and connect with potential buyers.'}
             </p>
           </div>
           <div className="flex gap-3">
@@ -204,51 +206,51 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
               <DialogTrigger asChild>
                 <Button variant="outline" className="gap-2">
                   <User className="w-4 h-4" />
-                  My Profile
+                  {t('landowner.myProfile')}
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle className="font-serif flex items-center gap-2">
                     <User className="w-5 h-5 text-primary" />
-                    Contact Details
+                    {t('landowner.contactDetails')}
                   </DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
                   <p className="text-sm text-muted-foreground">
-                    Add your contact details so buyers can reach you directly when interested in your land.
+                    {t('landowner.contactDetailsDesc') || 'Add your contact details so buyers can reach you directly.'}
                   </p>
                   <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name</Label>
+                    <Label htmlFor="fullName">{t('auth.fullName')}</Label>
                     <Input
                       id="fullName"
                       value={profileData.full_name || ''}
                       onChange={(e) => setProfileData({ ...profileData, full_name: e.target.value })}
-                      placeholder="Your full name"
+                      placeholder={t('auth.fullName')}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number *</Label>
+                    <Label htmlFor="phone">{t('landowner.phone')} *</Label>
                     <Input
                       id="phone"
                       value={profileData.phone || ''}
                       onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
                       placeholder="+91 98765 43210"
                     />
-                    <p className="text-xs text-muted-foreground">Buyers will see this to contact you</p>
+                    <p className="text-xs text-muted-foreground">{t('landowner.phoneDesc') || 'Buyers will see this to contact you'}</p>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{t('auth.email')}</Label>
                     <Input
                       id="email"
                       value={profileData.email}
                       disabled
                       className="bg-muted"
                     />
-                    <p className="text-xs text-muted-foreground">Email cannot be changed</p>
+                    <p className="text-xs text-muted-foreground">{t('landowner.emailDisabled') || 'Email cannot be changed'}</p>
                   </div>
                   <Button onClick={handleSaveProfile} className="w-full" disabled={isSaving}>
-                    {isSaving ? 'Saving...' : 'Save Contact Details'}
+                    {isSaving ? t('common.loading') : t('landowner.updateProfile')}
                   </Button>
                 </div>
               </DialogContent>
@@ -256,7 +258,7 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
             <Link to="/lands">
               <Button className="gap-2">
                 <Plus className="w-4 h-4" />
-                Add New Land
+                {t('landowner.addNewLand')}
               </Button>
             </Link>
           </div>
@@ -271,13 +273,13 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
                   <Phone className="w-5 h-5 text-amber-600" />
                 </div>
                 <div>
-                  <p className="font-medium text-foreground">Add your contact details</p>
-                  <p className="text-sm text-muted-foreground">Buyers need your phone number to contact you about land listings</p>
+                  <p className="font-medium text-foreground">{t('landowner.addContactTitle') || 'Add your contact details'}</p>
+                  <p className="text-sm text-muted-foreground">{t('landowner.profileAlert')}</p>
                 </div>
               </div>
               <Button variant="outline" size="sm" onClick={() => setProfileDialogOpen(true)}>
                 <Edit className="w-4 h-4 mr-2" />
-                Add Now
+                {t('landowner.addNow') || 'Add Now'}
               </Button>
             </CardContent>
           </Card>
@@ -286,11 +288,11 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
         {/* Stats Row */}
         <div className="grid grid-cols-3 gap-4 mb-8">
           {stats.map((stat) => (
-            <Card key={stat.label} className="text-center">
+            <Card key={stat.labelKey} className="text-center">
               <CardContent className="pt-6">
                 <stat.icon className={`w-8 h-8 mx-auto mb-2 ${stat.color}`} />
                 <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                <p className="text-sm text-muted-foreground">{stat.label}</p>
+                <p className="text-sm text-muted-foreground">{t(stat.labelKey)}</p>
               </CardContent>
             </Card>
           ))}
@@ -302,10 +304,10 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
             <CardHeader>
               <CardTitle className="font-serif flex items-center gap-2">
                 <Bell className="w-5 h-5 text-primary" />
-                Buyer Inquiries
+                {t('landowner.buyerInquiries') || 'Buyer Inquiries'}
                 {unreadCount > 0 && (
                   <span className="bg-primary text-primary-foreground text-xs px-2 py-1 rounded-full">
-                    {unreadCount} new
+                    {unreadCount} {t('landowner.new') || 'new'}
                   </span>
                 )}
               </CardTitle>
@@ -319,7 +321,7 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
                       <p className="font-medium text-foreground">
-                        {inquiry.buyer_name} is interested in <span className="text-primary">{inquiry.land_title}</span>
+                        {inquiry.buyer_name} {t('landowner.interestedIn') || 'is interested in'} <span className="text-primary">{inquiry.land_title}</span>
                       </p>
                       {inquiry.message && (
                         <p className="text-sm text-muted-foreground mt-1">"{inquiry.message}"</p>
@@ -338,7 +340,7 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
                         className="text-primary"
                       >
                         <CheckCircle className="w-4 h-4 mr-1" />
-                        Mark Read
+                        {t('landowner.markRead') || 'Mark Read'}
                       </Button>
                     )}
                   </div>
@@ -353,13 +355,13 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
           <CardContent className="p-6">
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div>
-                <h3 className="text-lg font-medium opacity-90 mb-1">Potential Monthly Revenue</h3>
+                <h3 className="text-lg font-medium opacity-90 mb-1">{t('landowner.potentialRevenue') || 'Potential Monthly Revenue'}</h3>
                 <div className="flex items-center gap-4">
                   <span className="text-4xl font-bold">
                     ₹{lands.filter(l => l.is_available).reduce((sum, l) => sum + l.price_per_month, 0).toLocaleString()}
                   </span>
                   <div className="text-sm opacity-80">
-                    <p>From {lands.filter(l => l.is_available).length} available lands</p>
+                    <p>{t('landowner.fromAvailableLands', { count: lands.filter(l => l.is_available).length }) || `From ${lands.filter(l => l.is_available).length} available lands`}</p>
                   </div>
                 </div>
               </div>
@@ -370,24 +372,24 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
 
         {/* My Lands */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-serif font-semibold text-foreground">My Land Listings</h2>
+          <h2 className="text-xl font-serif font-semibold text-foreground">{t('landowner.myLands')}</h2>
           <Link to="/lands" className="text-primary hover:underline text-sm font-medium">
-            View All →
+            {t('common.viewAll') || 'View All'} →
           </Link>
         </div>
 
         {loading ? (
-          <div className="text-center py-12 text-muted-foreground">Loading your lands...</div>
+          <div className="text-center py-12 text-muted-foreground">{t('common.loading')}</div>
         ) : lands.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
               <MapPin className="w-16 h-16 mx-auto mb-4 text-muted-foreground/50" />
-              <h3 className="text-xl font-semibold text-foreground mb-2">No Lands Listed Yet</h3>
-              <p className="text-muted-foreground mb-6">Start by adding your first land listing to reach potential buyers.</p>
+              <h3 className="text-xl font-semibold text-foreground mb-2">{t('landowner.noLandsTitle') || 'No Lands Listed Yet'}</h3>
+              <p className="text-muted-foreground mb-6">{t('landowner.noLandsDesc') || 'Start by adding your first land listing to reach potential buyers.'}</p>
               <Link to="/lands">
                 <Button className="gap-2">
                   <Plus className="w-4 h-4" />
-                  Add Your First Land
+                  {t('landowner.addFirstLand') || 'Add Your First Land'}
                 </Button>
               </Link>
             </CardContent>
@@ -410,17 +412,17 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
                         ? 'bg-agri-leaf/10 text-agri-leaf' 
                         : 'bg-muted text-muted-foreground'
                     }`}>
-                      {land.is_available ? 'Available' : 'Rented'}
+                      {land.is_available ? t('common.available') : t('landowner.rented') || 'Rented'}
                     </span>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">{land.area_acres} acres</span>
-                    <span className="font-semibold text-primary">₹{land.price_per_month.toLocaleString()}/mo</span>
+                    <span className="text-muted-foreground">{land.area_acres} {t('lands.acres')}</span>
+                    <span className="font-semibold text-primary">₹{land.price_per_month.toLocaleString()}{t('lands.perMonth')}</span>
                   </div>
                   {land.soil_type && (
-                    <p className="text-xs text-muted-foreground mt-2">Soil: {land.soil_type}</p>
+                    <p className="text-xs text-muted-foreground mt-2">{t('lands.soilType')}: {land.soil_type}</p>
                   )}
                 </CardContent>
               </Card>
@@ -431,25 +433,25 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
         {/* Tips Card */}
         <Card className="mt-8">
           <CardHeader>
-            <CardTitle className="font-serif">Tips for Better Listings</CardTitle>
+            <CardTitle className="font-serif">{t('landowner.tipsTitle') || 'Tips for Better Listings'}</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start gap-2">
                 <span className="text-agri-leaf">✓</span>
-                Add clear photos of your land to attract more buyers
+                {t('landowner.tip1') || 'Add clear photos of your land to attract more buyers'}
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-agri-leaf">✓</span>
-                Mention water availability and soil type for better matches
+                {t('landowner.tip2') || 'Mention water availability and soil type for better matches'}
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-agri-leaf">✓</span>
-                Keep your pricing competitive with nearby listings
+                {t('landowner.tip3') || 'Keep your pricing competitive with nearby listings'}
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-agri-leaf">✓</span>
-                Keep your contact details updated for faster communication
+                {t('landowner.tip4') || 'Keep your contact details updated for faster communication'}
               </li>
             </ul>
           </CardContent>

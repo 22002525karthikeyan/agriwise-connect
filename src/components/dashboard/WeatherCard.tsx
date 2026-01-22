@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from '@/components/ui/card';
 import { Sun, CloudRain } from 'lucide-react';
 
@@ -9,29 +10,31 @@ const weatherData = {
 };
 
 export function WeatherCard() {
+  const { t } = useTranslation();
+
   return (
     <Card className="bg-gradient-hero text-primary-foreground shadow-elevated">
       <CardContent className="p-6">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h3 className="text-lg font-medium opacity-90 mb-1">Today's Weather</h3>
+            <h3 className="text-lg font-medium opacity-90 mb-1">{t('dashboard.todaysWeather')}</h3>
             <div className="flex items-center gap-4">
               <span className="text-4xl font-bold">{weatherData.temp}</span>
               <div className="text-sm opacity-80">
                 <p>{weatherData.condition}</p>
-                <p>Humidity: {weatherData.humidity}</p>
+                <p>{t('dashboard.humidity')}: {weatherData.humidity}</p>
               </div>
             </div>
           </div>
           <div className="flex gap-6">
             <div className="text-center">
               <Sun className="w-8 h-8 mb-1 mx-auto" />
-              <p className="text-xs opacity-80">UV Index</p>
-              <p className="font-semibold">Moderate</p>
+              <p className="text-xs opacity-80">{t('dashboard.uvIndex')}</p>
+              <p className="font-semibold">{t('dashboard.moderate')}</p>
             </div>
             <div className="text-center">
               <CloudRain className="w-8 h-8 mb-1 mx-auto" />
-              <p className="text-xs opacity-80">Rainfall</p>
+              <p className="text-xs opacity-80">{t('dashboard.rainfall')}</p>
               <p className="font-semibold">{weatherData.rainfall}</p>
             </div>
           </div>
