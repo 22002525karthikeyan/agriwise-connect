@@ -1,15 +1,19 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Leaf, Sprout, Bug, Droplets, ShoppingBag, MapPin, ArrowRight, CheckCircle } from 'lucide-react';
+import { Leaf, Sprout, Bug, Droplets, ShoppingBag, MapPin, ArrowRight } from 'lucide-react';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 
 export default function Index() {
+  const { t } = useTranslation();
+
   const features = [
-    { icon: Sprout, title: 'Crop Prediction', description: 'AI-powered recommendations based on soil & weather' },
-    { icon: Bug, title: 'Disease Detection', description: 'Upload leaf images for instant diagnosis' },
-    { icon: Droplets, title: 'Water Management', description: 'Smart irrigation monitoring & scheduling' },
-    { icon: MapPin, title: 'Land Rental', description: 'Find or list agricultural land easily' },
-    { icon: ShoppingBag, title: 'Direct Marketplace', description: 'Sell produce without middlemen' },
+    { icon: Sprout, titleKey: 'features.cropPrediction', descKey: 'features.cropPredictionDesc' },
+    { icon: Bug, titleKey: 'features.diseaseDetection', descKey: 'features.diseaseDetectionDesc' },
+    { icon: Droplets, titleKey: 'features.waterManagement', descKey: 'features.waterManagementDesc' },
+    { icon: MapPin, titleKey: 'features.landRental', descKey: 'features.landRentalDesc' },
+    { icon: ShoppingBag, titleKey: 'features.marketplace', descKey: 'features.marketplaceDesc' },
   ];
 
   return (
@@ -24,11 +28,12 @@ export default function Index() {
             <span className="text-xl font-serif font-bold text-foreground">AgriSmart</span>
           </div>
           <div className="flex items-center gap-3">
+            <LanguageSwitcher />
             <Link to="/auth">
-              <Button variant="outline">Sign In</Button>
+              <Button variant="outline">{t('common.signIn')}</Button>
             </Link>
             <Link to="/auth">
-              <Button>Get Started</Button>
+              <Button>{t('common.getStarted')}</Button>
             </Link>
           </div>
         </div>
@@ -39,18 +44,18 @@ export default function Index() {
         <div className="container mx-auto text-center max-w-4xl">
           <div className="inline-flex items-center gap-2 bg-accent px-4 py-2 rounded-full text-sm text-accent-foreground mb-6">
             <Leaf className="w-4 h-4" />
-            AI-Powered Agricultural Platform
+            {t('home.tagline')}
           </div>
           <h1 className="text-4xl md:text-6xl font-serif font-bold text-foreground mb-6 leading-tight">
-            Empowering Farmers with <span className="text-gradient-hero">Smart Technology</span>
+            {t('home.title')} <span className="text-gradient-hero">{t('home.titleHighlight')}</span>
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Get AI-powered crop recommendations, detect plant diseases instantly, manage irrigation smartly, and sell your produce directly to buyers.
+            {t('home.subtitle')}
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link to="/auth">
               <Button size="lg" className="text-lg px-8">
-                Start Farming Smarter
+                {t('home.cta')}
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
             </Link>
@@ -62,17 +67,17 @@ export default function Index() {
       <section className="py-20 bg-accent/50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-serif font-bold text-center text-foreground mb-12">
-            Everything You Need to Farm Better
+            {t('home.featuresTitle')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {features.map((feature) => (
-              <Card key={feature.title} className="group hover:shadow-card transition-all hover:-translate-y-1">
+              <Card key={feature.titleKey} className="group hover:shadow-card transition-all hover:-translate-y-1">
                 <CardContent className="p-6">
                   <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                     <feature.icon className="w-6 h-6 text-primary group-hover:text-primary-foreground" />
                   </div>
-                  <h3 className="text-lg font-serif font-semibold text-foreground mb-2">{feature.title}</h3>
-                  <p className="text-muted-foreground">{feature.description}</p>
+                  <h3 className="text-lg font-serif font-semibold text-foreground mb-2">{t(feature.titleKey)}</h3>
+                  <p className="text-muted-foreground">{t(feature.descKey)}</p>
                 </CardContent>
               </Card>
             ))}
@@ -83,13 +88,13 @@ export default function Index() {
       {/* CTA */}
       <section className="py-20 bg-gradient-hero text-primary-foreground">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-serif font-bold mb-6">Ready to Transform Your Farming?</h2>
+          <h2 className="text-3xl font-serif font-bold mb-6">{t('home.ctaTitle')}</h2>
           <p className="text-xl opacity-90 mb-8 max-w-xl mx-auto">
-            Join thousands of farmers already using AgriSmart to increase yields and reduce costs.
+            {t('home.ctaSubtitle')}
           </p>
           <Link to="/auth">
             <Button size="lg" variant="secondary" className="text-lg px-8">
-              Create Free Account
+              {t('home.ctaButton')}
             </Button>
           </Link>
         </div>
@@ -98,7 +103,7 @@ export default function Index() {
       {/* Footer */}
       <footer className="py-8 bg-card border-t">
         <div className="container mx-auto px-4 text-center text-muted-foreground">
-          <p>© 2026 AgriSmart. Empowering farmers with technology.</p>
+          <p>{t('home.footer')}</p>
         </div>
       </footer>
     </div>
