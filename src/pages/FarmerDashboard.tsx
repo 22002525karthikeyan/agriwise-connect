@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Sprout, Bug, Droplets, ShoppingBag, TrendingUp } from 'lucide-react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { WeatherCard } from '@/components/dashboard/WeatherCard';
+import { OrderNotifications } from '@/components/dashboard/OrderNotifications';
+import { ProfileSetupCard } from '@/components/dashboard/ProfileSetupCard';
 
 interface FarmerDashboardProps {
   fullName: string | null;
@@ -66,9 +68,17 @@ export default function FarmerDashboard({ fullName, onSignOut }: FarmerDashboard
           </p>
         </div>
 
+        {/* Profile Setup Alert */}
+        <ProfileSetupCard role="farmer" />
+
         {/* Weather Card */}
         <div className="mb-8">
           <WeatherCard />
+        </div>
+
+        {/* Order Notifications */}
+        <div className="mb-8">
+          <OrderNotifications />
         </div>
 
         {/* Quick Actions Grid */}

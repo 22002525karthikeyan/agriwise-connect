@@ -234,5 +234,32 @@
     "language": "Language",
     "viewAll": "View All",
     "error": "Error"
+  },
+  "profile": {
+    "myProfile": "My Profile",
+    "completeProfile": "Complete your profile",
+    "completeProfileDesc": "Add your contact details and address for a better experience",
+    "addDetails": "Add Details",
+    "phone": "Phone Number",
+    "address": "Address",
+    "farmName": "Farm Name",
+    "businessName": "Business Name",
+    "saveProfile": "Save Profile",
+    "updated": "Profile Updated!",
+    "updatedDesc": "Your details have been saved.",
+    "updateError": "Failed to update profile",
+    "emailDisabled": "Email cannot be changed"
+  },
+  "farmer": {
+    "orders": "Orders",
+    "newOrders": "new",
+    "orderDetails": "Order Details",
+    "buyerDetails": "Buyer Details",
+    "deliveryAddress": "Delivery Address",
+    "noAddress": "No address provided",
+    "confirmOrder": "Confirm Order",
+    "cancelOrder": "Cancel",
+    "markShipped": "Mark as Shipped",
+    "markDelivered": "Mark as Delivered"
   }
 }

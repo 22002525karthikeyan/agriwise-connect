@@ -37,6 +37,7 @@ export default function Marketplace() {
   const [buyDialogOpen, setBuyDialogOpen] = useState(false);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
   const [orderQuantity, setOrderQuantity] = useState(1);
+  const [deliveryAddress, setDeliveryAddress] = useState('');
   const [isOrdering, setIsOrdering] = useState(false);
   
   const [newListing, setNewListing] = useState({
@@ -136,6 +137,15 @@ export default function Marketplace() {
       return;
     }
 
+    if (!deliveryAddress.trim()) {
+      toast({
+        title: 'Address Required',
+        description: 'Please enter your delivery address',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsOrdering(true);
 
     const totalAmount = orderQuantity * selectedListing.price_per_unit;
@@ -149,6 +159,7 @@ export default function Marketplace() {
       total_amount: totalAmount,
       status: 'pending',
       payment_status: 'pending',
+      delivery_address: deliveryAddress,
     });
 
     if (error) {
@@ -174,6 +185,7 @@ export default function Marketplace() {
       });
       setBuyDialogOpen(false);
       setOrderQuantity(1);
+      setDeliveryAddress('');
       setSelectedListing(null);
       fetchListings();
     }
@@ -208,9 +220,21 @@ export default function Marketplace() {
     return 'Marketplace';
   };
 
-  const openBuyDialog = (listing: Listing) => {
+  const openBuyDialog = async (listing: Listing) => {
     setSelectedListing(listing);
     setOrderQuantity(1);
+    
+    // Pre-fill delivery address from profile if available
+    if (user) {
+      const { data } = await supabase
+        .from('profiles')
+        .select('address')
+        .eq('id', user.id)
+        .single();
+      
+      setDeliveryAddress(data?.address || '');
+    }
+    
     setBuyDialogOpen(true);
   };
 
@@ -390,7 +414,22 @@ export default function Marketplace() {
                 )}
               </div>
 
-              {/* Order Summary */}
+              {/* Delivery Address */}
+              <div className="space-y-2">
+                <Label htmlFor="deliveryAddress" className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4" />
+                  Delivery Address *
+                </Label>
+                <Textarea
+                  id="deliveryAddress"
+                  value={deliveryAddress}
+                  onChange={(e) => setDeliveryAddress(e.target.value)}
+                  placeholder="Enter your full delivery address (Village, District, State, Pincode)"
+                  rows={3}
+                  required
+                />
+              </div>
+
               <div className="border-t pt-4 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Price per {selectedListing.unit}</span>

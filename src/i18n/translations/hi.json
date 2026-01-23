@@ -234,5 +234,32 @@
     "language": "भाषा",
     "viewAll": "सभी देखें",
     "error": "त्रुटि"
+  },
+  "profile": {
+    "myProfile": "मेरी प्रोफ़ाइल",
+    "completeProfile": "अपनी प्रोफ़ाइल पूरी करें",
+    "completeProfileDesc": "बेहतर अनुभव के लिए अपना संपर्क विवरण और पता जोड़ें",
+    "addDetails": "विवरण जोड़ें",
+    "phone": "फ़ोन नंबर",
+    "address": "पता",
+    "farmName": "खेत का नाम",
+    "businessName": "व्यवसाय का नाम",
+    "saveProfile": "प्रोफ़ाइल सहेजें",
+    "updated": "प्रोफ़ाइल अपडेट हो गई!",
+    "updatedDesc": "आपके विवरण सहेज लिए गए हैं।",
+    "updateError": "प्रोफ़ाइल अपडेट करने में विफल",
+    "emailDisabled": "ईमेल नहीं बदला जा सकता"
+  },
+  "farmer": {
+    "orders": "ऑर्डर",
+    "newOrders": "नया",
+    "orderDetails": "ऑर्डर विवरण",
+    "buyerDetails": "खरीदार विवरण",
+    "deliveryAddress": "डिलीवरी पता",
+    "noAddress": "कोई पता नहीं दिया गया",
+    "confirmOrder": "ऑर्डर की पुष्टि करें",
+    "cancelOrder": "रद्द करें",
+    "markShipped": "भेजा गया चिह्नित करें",
+    "markDelivered": "डिलीवर हुआ चिह्नित करें"
   }
 }

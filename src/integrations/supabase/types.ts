@@ -305,6 +305,7 @@ export type Database = {
         Row: {
           buyer_id: string
           created_at: string
+          delivery_address: string | null
           id: string
           listing_id: string
           payment_intent_id: string | null
@@ -319,6 +320,7 @@ export type Database = {
         Insert: {
           buyer_id: string
           created_at?: string
+          delivery_address?: string | null
           id?: string
           listing_id: string
           payment_intent_id?: string | null
@@ -333,6 +335,7 @@ export type Database = {
         Update: {
           buyer_id?: string
           created_at?: string
+          delivery_address?: string | null
           id?: string
           listing_id?: string
           payment_intent_id?: string | null
@@ -348,7 +351,9 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
           avatar_url: string | null
+          business_name: string | null
           created_at: string | null
           email: string
           full_name: string | null
@@ -358,7 +363,9 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          address?: string | null
           avatar_url?: string | null
+          business_name?: string | null
           created_at?: string | null
           email: string
           full_name?: string | null
@@ -368,7 +375,9 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          address?: string | null
           avatar_url?: string | null
+          business_name?: string | null
           created_at?: string | null
           email?: string
           full_name?: string | null

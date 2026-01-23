@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, ShoppingBag, Search } from 'lucide-react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { ProfileSetupCard } from '@/components/dashboard/ProfileSetupCard';
 import { supabase } from '@/integrations/supabase/client';
 
 interface BuyerDashboardProps {
@@ -101,7 +102,9 @@ export default function BuyerDashboard({ fullName, onSignOut }: BuyerDashboardPr
           </p>
         </div>
 
-        {/* Featured Categories */}
+        {/* Profile Setup Alert */}
+        <ProfileSetupCard role="buyer" />
+
         <h2 className="text-xl font-serif font-semibold text-foreground mb-4">{t('buyer.featuredCategories')}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {featuredCategories.map((category) => (
