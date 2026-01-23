@@ -36,6 +36,8 @@ interface Inquiry {
   is_read: boolean;
   created_at: string;
   buyer_name?: string;
+  buyer_phone?: string;
+  buyer_email?: string;
   land_title?: string;
 }
 
@@ -145,7 +147,7 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
         data.map(async (inquiry) => {
           const { data: buyerData } = await supabase
             .from('profiles')
-            .select('full_name')
+            .select('full_name, phone, email')
             .eq('id', inquiry.buyer_id)
             .single();
 
@@ -158,6 +160,8 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
           return {
             ...inquiry,
             buyer_name: buyerData?.full_name || 'Unknown Buyer',
+            buyer_phone: buyerData?.phone || null,
+            buyer_email: buyerData?.email || '',
             land_title: landData?.title || 'Unknown Land',
           };
         })
@@ -326,6 +330,20 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
                       {inquiry.message && (
                         <p className="text-sm text-muted-foreground mt-1">"{inquiry.message}"</p>
                       )}
+                      {/* Buyer Contact Details */}
+                      <div className="mt-2 flex flex-wrap gap-3 text-xs">
+                        {inquiry.buyer_phone && (
+                          <a href={`tel:${inquiry.buyer_phone}`} className="flex items-center gap-1 text-primary hover:underline">
+                            <Phone className="w-3 h-3" />
+                            {inquiry.buyer_phone}
+                          </a>
+                        )}
+                        {inquiry.buyer_email && (
+                          <span className="flex items-center gap-1 text-muted-foreground">
+                            📧 {inquiry.buyer_email}
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-muted-foreground mt-2">
                         {new Date(inquiry.created_at).toLocaleDateString('en-IN', { 
                           day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
