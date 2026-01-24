@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
 import { Icon, LatLngExpression } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -22,10 +23,17 @@ interface LandMapViewProps {
 
 export function LandMapView({ latitude, longitude, title, location }: LandMapViewProps) {
   const position: LatLngExpression = [latitude, longitude];
+  const [mapKey, setMapKey] = useState(0);
+
+  useEffect(() => {
+    // Force map to re-render when dialog opens
+    setMapKey(prev => prev + 1);
+  }, [latitude, longitude]);
 
   return (
     <div className="h-64 w-full rounded-xl overflow-hidden border">
       <MapContainer 
+        key={`view-${mapKey}`}
         center={position} 
         zoom={13} 
         style={{ height: '100%', width: '100%' }}
@@ -62,15 +70,35 @@ function LocationMarker({ onLocationChange }: { onLocationChange: (lat: number, 
 }
 
 export function LocationPicker({ latitude, longitude, onLocationChange }: LocationPickerProps) {
+  const [isReady, setIsReady] = useState(false);
+  
   // Default to center of India if no location set
   const defaultCenter: LatLngExpression = [20.5937, 78.9629];
   const position: LatLngExpression | null = latitude && longitude ? [latitude, longitude] : null;
+
+  // Delay map render to ensure container is ready
+  useEffect(() => {
+    const timer = setTimeout(() => setIsReady(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (!isReady) {
+    return (
+      <div className="space-y-2">
+        <p className="text-xs text-muted-foreground">Click on the map to set land location</p>
+        <div className="h-48 w-full rounded-xl overflow-hidden border bg-muted flex items-center justify-center">
+          <p className="text-sm text-muted-foreground">Loading map...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-2">
       <p className="text-xs text-muted-foreground">Click on the map to set land location</p>
       <div className="h-48 w-full rounded-xl overflow-hidden border">
         <MapContainer 
+          key="location-picker"
           center={position || defaultCenter} 
           zoom={position ? 13 : 5} 
           style={{ height: '100%', width: '100%' }}
