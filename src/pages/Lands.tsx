@@ -3,14 +3,13 @@ import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, MapPin, Droplets, Ruler, Plus, Leaf, Phone, Mail, User, MessageSquare } from 'lucide-react';
+import { ArrowLeft, MapPin, Leaf, Phone, Mail, User } from 'lucide-react';
+import { LandCard } from '@/components/lands/LandCard';
+import { AddLandDialog } from '@/components/lands/AddLandDialog';
+import { LandMapView } from '@/components/lands/LandMap';
 
 interface Land {
   id: string;
@@ -23,6 +22,8 @@ interface Land {
   water_availability: string | null;
   price_per_month: number;
   image_url: string | null;
+  latitude: number | null;
+  longitude: number | null;
 }
 
 interface OwnerContact {
@@ -38,19 +39,10 @@ export default function Lands() {
   const [isLoading, setIsLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
+  const [mapDialogOpen, setMapDialogOpen] = useState(false);
   const [selectedLand, setSelectedLand] = useState<Land | null>(null);
   const [ownerContact, setOwnerContact] = useState<OwnerContact | null>(null);
   const [loadingContact, setLoadingContact] = useState(false);
-  
-  const [newLand, setNewLand] = useState({
-    title: '',
-    description: '',
-    location: '',
-    area_acres: '',
-    soil_type: '',
-    water_availability: '',
-    price_per_month: '',
-  });
 
   useEffect(() => {
     fetchLands();
@@ -70,8 +62,17 @@ export default function Lands() {
     setIsLoading(false);
   };
 
-  const handleAddLand = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAddLand = async (newLand: {
+    title: string;
+    description: string;
+    location: string;
+    area_acres: string;
+    soil_type: string;
+    water_availability: string;
+    price_per_month: string;
+    latitude: number | null;
+    longitude: number | null;
+  }) => {
     if (!user) return;
 
     const { error } = await supabase.from('lands').insert({
@@ -83,6 +84,8 @@ export default function Lands() {
       soil_type: newLand.soil_type || null,
       water_availability: newLand.water_availability || null,
       price_per_month: parseFloat(newLand.price_per_month),
+      latitude: newLand.latitude,
+      longitude: newLand.longitude,
     });
 
     if (error) {
@@ -97,15 +100,6 @@ export default function Lands() {
         description: 'Land listing added successfully',
       });
       setIsDialogOpen(false);
-      setNewLand({
-        title: '',
-        description: '',
-        location: '',
-        area_acres: '',
-        soil_type: '',
-        water_availability: '',
-        price_per_month: '',
-      });
       fetchLands();
     }
   };
@@ -115,7 +109,6 @@ export default function Lands() {
     setLoadingContact(true);
     setContactDialogOpen(true);
 
-    // Fetch owner contact details
     const { data } = await supabase
       .from('profiles')
       .select('full_name, phone, email')
@@ -127,7 +120,6 @@ export default function Lands() {
     }
     setLoadingContact(false);
 
-    // Also create an inquiry record
     if (user) {
       await supabase.from('buyer_inquiries').insert({
         buyer_id: user.id,
@@ -137,6 +129,11 @@ export default function Lands() {
         message: 'Viewed contact details',
       });
     }
+  };
+
+  const handleViewMap = (land: Land) => {
+    setSelectedLand(land);
+    setMapDialogOpen(true);
   };
 
   return (
@@ -161,113 +158,17 @@ export default function Lands() {
             </div>
             
             {profile?.role === 'landowner' && (
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Land
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-lg">
-                  <DialogHeader>
-                    <DialogTitle className="font-serif">Add New Land Listing</DialogTitle>
-                  </DialogHeader>
-                  <form onSubmit={handleAddLand} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="title">Title</Label>
-                      <Input
-                        id="title"
-                        placeholder="e.g., Fertile Farmland near River"
-                        value={newLand.title}
-                        onChange={(e) => setNewLand({ ...newLand, title: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="location">Location</Label>
-                      <Input
-                        id="location"
-                        placeholder="Village, District, State"
-                        value={newLand.location}
-                        onChange={(e) => setNewLand({ ...newLand, location: e.target.value })}
-                        required
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="area">Area (acres)</Label>
-                        <Input
-                          id="area"
-                          type="number"
-                          placeholder="e.g., 5"
-                          value={newLand.area_acres}
-                          onChange={(e) => setNewLand({ ...newLand, area_acres: e.target.value })}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="price">Price/month (₹)</Label>
-                        <Input
-                          id="price"
-                          type="number"
-                          placeholder="e.g., 10000"
-                          value={newLand.price_per_month}
-                          onChange={(e) => setNewLand({ ...newLand, price_per_month: e.target.value })}
-                          required
-                        />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="soil">Soil Type</Label>
-                        <Select value={newLand.soil_type} onValueChange={(v) => setNewLand({ ...newLand, soil_type: v })}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="alluvial">Alluvial</SelectItem>
-                            <SelectItem value="black">Black</SelectItem>
-                            <SelectItem value="red">Red</SelectItem>
-                            <SelectItem value="laterite">Laterite</SelectItem>
-                            <SelectItem value="sandy">Sandy</SelectItem>
-                            <SelectItem value="loamy">Loamy</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="water">Water Availability</Label>
-                        <Select value={newLand.water_availability} onValueChange={(v) => setNewLand({ ...newLand, water_availability: v })}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="canal">Canal Irrigation</SelectItem>
-                            <SelectItem value="borewell">Borewell</SelectItem>
-                            <SelectItem value="river">River Nearby</SelectItem>
-                            <SelectItem value="rainfed">Rainfed Only</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="description">Description</Label>
-                      <Textarea
-                        id="description"
-                        placeholder="Describe the land, previous crops grown, etc."
-                        value={newLand.description}
-                        onChange={(e) => setNewLand({ ...newLand, description: e.target.value })}
-                      />
-                    </div>
-                    <Button type="submit" className="w-full">List Land</Button>
-                  </form>
-                </DialogContent>
-              </Dialog>
+              <AddLandDialog
+                isOpen={isDialogOpen}
+                onOpenChange={setIsDialogOpen}
+                onSubmit={handleAddLand}
+              />
             )}
           </div>
         </div>
       </header>
 
-      {/* Contact Owner Dialog - Shows contact details */}
+      {/* Contact Owner Dialog */}
       <Dialog open={contactDialogOpen} onOpenChange={setContactDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -345,6 +246,44 @@ export default function Lands() {
         </DialogContent>
       </Dialog>
 
+      {/* Map View Dialog */}
+      <Dialog open={mapDialogOpen} onOpenChange={setMapDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="font-serif flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-primary" />
+              Land Location
+            </DialogTitle>
+          </DialogHeader>
+          {selectedLand && selectedLand.latitude && selectedLand.longitude && (
+            <div className="space-y-4">
+              <div className="p-4 bg-muted rounded-xl">
+                <p className="font-semibold text-foreground">{selectedLand.title}</p>
+                <p className="text-sm text-muted-foreground">{selectedLand.location}</p>
+              </div>
+              <LandMapView
+                latitude={selectedLand.latitude}
+                longitude={selectedLand.longitude}
+                title={selectedLand.title}
+                location={selectedLand.location}
+              />
+              <Button
+                className="w-full"
+                onClick={() => {
+                  window.open(
+                    `https://www.google.com/maps/dir/?api=1&destination=${selectedLand.latitude},${selectedLand.longitude}`,
+                    '_blank'
+                  );
+                }}
+              >
+                <MapPin className="w-4 h-4 mr-2" />
+                Get Directions in Google Maps
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <main className="container mx-auto px-4 py-8">
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
@@ -364,46 +303,14 @@ export default function Lands() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {lands.map((land) => (
-              <Card key={land.id} className="overflow-hidden hover:shadow-card transition-shadow">
-                <div className="h-48 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-                  <MapPin className="w-16 h-16 text-primary/30" />
-                </div>
-                <CardHeader className="pb-2">
-                  <CardTitle className="font-serif text-lg">{land.title}</CardTitle>
-                  <CardDescription className="flex items-center gap-1">
-                    <MapPin className="w-3 h-3" />
-                    {land.location}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Ruler className="w-4 h-4" />
-                        {land.area_acres} acres
-                      </span>
-                      {land.water_availability && (
-                        <span className="flex items-center gap-1">
-                          <Droplets className="w-4 h-4" />
-                          {land.water_availability}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-2xl font-bold text-primary">₹{land.price_per_month.toLocaleString()}</p>
-                      <p className="text-xs text-muted-foreground">per month</p>
-                    </div>
-                    {profile?.role === 'buyer' && user && (
-                      <Button onClick={() => handleContactOwner(land)}>
-                        <Phone className="w-4 h-4 mr-2" />
-                        Get Contact
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+              <LandCard
+                key={land.id}
+                land={land}
+                isBuyer={profile?.role === 'buyer'}
+                isLoggedIn={!!user}
+                onContactOwner={handleContactOwner}
+                onViewMap={handleViewMap}
+              />
             ))}
           </div>
         )}

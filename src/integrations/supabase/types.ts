@@ -216,7 +216,9 @@ export type Database = {
           id: string
           image_url: string | null
           is_available: boolean | null
+          latitude: number | null
           location: string
+          longitude: number | null
           owner_id: string
           price_per_month: number
           soil_type: string | null
@@ -231,7 +233,9 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_available?: boolean | null
+          latitude?: number | null
           location: string
+          longitude?: number | null
           owner_id: string
           price_per_month: number
           soil_type?: string | null
@@ -246,7 +250,9 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_available?: boolean | null
+          latitude?: number | null
           location?: string
+          longitude?: number | null
           owner_id?: string
           price_per_month?: number
           soil_type?: string | null
