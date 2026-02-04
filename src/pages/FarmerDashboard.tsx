@@ -1,12 +1,10 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Sprout, Bug, Droplets, ShoppingBag, TrendingUp, Calculator } from 'lucide-react';
+import { Sprout, Bug, Droplets, ShoppingBag, TrendingUp, Calculator, Package } from 'lucide-react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { WeatherCard } from '@/components/dashboard/WeatherCard';
-import { OrderNotifications } from '@/components/dashboard/OrderNotifications';
 import { ProfileSetupCard } from '@/components/dashboard/ProfileSetupCard';
-
 interface FarmerDashboardProps {
   fullName: string | null;
   onSignOut: () => void;
@@ -58,6 +56,13 @@ export default function FarmerDashboard({ fullName, onSignOut }: FarmerDashboard
       href: '/marketplace',
       color: 'bg-agri-gold/10 text-agri-earth',
     },
+    {
+      titleKey: 'farmer.orders',
+      descKey: 'farmer.manageOrders',
+      icon: Package,
+      href: '/orders',
+      color: 'bg-purple-500/10 text-purple-600',
+    },
   ];
 
   return (
@@ -81,11 +86,6 @@ export default function FarmerDashboard({ fullName, onSignOut }: FarmerDashboard
         {/* Weather Card */}
         <div className="mb-8">
           <WeatherCard />
-        </div>
-
-        {/* Order Notifications */}
-        <div className="mb-8">
-          <OrderNotifications />
         </div>
 
         {/* Quick Actions Grid */}
