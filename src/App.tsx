@@ -14,6 +14,7 @@ import Lands from "./pages/Lands";
 import Marketplace from "./pages/Marketplace";
 import WaterManagement from "./pages/WaterManagement";
 import ProfitEstimation from "./pages/ProfitEstimation";
+import Orders from "./pages/Orders";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/water-management" element={<WaterManagement />} />
             <Route path="/profit-estimation" element={<ProfitEstimation />} />
+            <Route path="/orders" element={<Orders />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
