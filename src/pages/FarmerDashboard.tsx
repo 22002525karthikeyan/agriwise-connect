@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Sprout, Bug, Droplets, ShoppingBag, TrendingUp } from 'lucide-react';
+import { Sprout, Bug, Droplets, ShoppingBag, TrendingUp, Calculator } from 'lucide-react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { WeatherCard } from '@/components/dashboard/WeatherCard';
 import { OrderNotifications } from '@/components/dashboard/OrderNotifications';
@@ -45,11 +45,18 @@ export default function FarmerDashboard({ fullName, onSignOut }: FarmerDashboard
       color: 'bg-agri-water/10 text-agri-water',
     },
     {
+      titleKey: 'profit.title',
+      descKey: 'profit.subtitle',
+      icon: Calculator,
+      href: '/profit-estimation',
+      color: 'bg-primary/10 text-primary',
+    },
+    {
       titleKey: 'marketplace.sellProduce',
       descKey: 'features.marketplaceDesc',
       icon: ShoppingBag,
       href: '/marketplace',
-      color: 'bg-primary/10 text-primary',
+      color: 'bg-agri-gold/10 text-agri-earth',
     },
   ];
 

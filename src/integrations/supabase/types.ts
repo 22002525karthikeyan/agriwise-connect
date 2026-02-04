@@ -394,6 +394,72 @@ export type Database = {
         }
         Relationships: []
       }
+      profit_estimations: {
+        Row: {
+          created_at: string
+          crop_name: string
+          expected_income: number
+          expected_yield_per_acre: number
+          fertilizer_cost: number
+          id: string
+          labor_cost: number
+          land_area: number
+          market_price_per_unit: number
+          net_profit: number
+          other_costs: number
+          pesticide_cost: number
+          profit_margin: number | null
+          seed_cost: number
+          total_investment: number
+          total_yield: number
+          transport_cost: number
+          user_id: string
+          water_cost: number
+        }
+        Insert: {
+          created_at?: string
+          crop_name: string
+          expected_income: number
+          expected_yield_per_acre: number
+          fertilizer_cost?: number
+          id?: string
+          labor_cost?: number
+          land_area: number
+          market_price_per_unit: number
+          net_profit: number
+          other_costs?: number
+          pesticide_cost?: number
+          profit_margin?: number | null
+          seed_cost?: number
+          total_investment: number
+          total_yield: number
+          transport_cost?: number
+          user_id: string
+          water_cost?: number
+        }
+        Update: {
+          created_at?: string
+          crop_name?: string
+          expected_income?: number
+          expected_yield_per_acre?: number
+          fertilizer_cost?: number
+          id?: string
+          labor_cost?: number
+          land_area?: number
+          market_price_per_unit?: number
+          net_profit?: number
+          other_costs?: number
+          pesticide_cost?: number
+          profit_margin?: number | null
+          seed_cost?: number
+          total_investment?: number
+          total_yield?: number
+          transport_cost?: number
+          user_id?: string
+          water_cost?: number
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
