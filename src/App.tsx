@@ -15,6 +15,7 @@ import Marketplace from "./pages/Marketplace";
 import WaterManagement from "./pages/WaterManagement";
 import ProfitEstimation from "./pages/ProfitEstimation";
 import Orders from "./pages/Orders";
+import AgriInputsStore from "./pages/AgriInputsStore";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/water-management" element={<WaterManagement />} />
             <Route path="/profit-estimation" element={<ProfitEstimation />} />
             <Route path="/orders" element={<Orders />} />
+            <Route path="/agri-inputs" element={<AgriInputsStore />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>
@@ -47,3 +49,4 @@ const App = () => (
 );
 
 export default App;
+

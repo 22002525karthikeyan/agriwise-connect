@@ -14,6 +14,96 @@ export type Database = {
   }
   public: {
     Tables: {
+      agri_input_orders: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          delivery_address: string | null
+          id: string
+          input_id: string
+          quantity: number
+          seller_id: string
+          status: string
+          total_amount: number
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          delivery_address?: string | null
+          id?: string
+          input_id: string
+          quantity: number
+          seller_id: string
+          status?: string
+          total_amount: number
+          unit: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          delivery_address?: string | null
+          id?: string
+          input_id?: string
+          quantity?: number
+          seller_id?: string
+          status?: string
+          total_amount?: number
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      agri_inputs: {
+        Row: {
+          brand: string | null
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_available: boolean | null
+          name: string
+          price_per_unit: number
+          quantity_available: number
+          seller_id: string
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          brand?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_available?: boolean | null
+          name: string
+          price_per_unit: number
+          quantity_available?: number
+          seller_id: string
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          brand?: string | null
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_available?: boolean | null
+          name?: string
+          price_per_unit?: number
+          quantity_available?: number
+          seller_id?: string
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       buyer_inquiries: {
         Row: {
           buyer_id: string

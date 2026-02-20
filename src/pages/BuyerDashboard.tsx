@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, ShoppingBag, Search } from 'lucide-react';
+import { MapPin, ShoppingBag, Search, Leaf } from 'lucide-react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { ProfileSetupCard } from '@/components/dashboard/ProfileSetupCard';
 import { supabase } from '@/integrations/supabase/client';
@@ -78,6 +78,13 @@ export default function BuyerDashboard({ fullName, onSignOut }: BuyerDashboardPr
       href: '/marketplace',
       color: 'bg-agri-leaf/10 text-agri-leaf',
     },
+    {
+      titleKey: 'buyer.agriInputs',
+      descKey: 'buyer.agriInputsDesc',
+      icon: Leaf,
+      href: '/agri-inputs',
+      color: 'bg-agri-gold/10 text-agri-earth',
+    },
   ];
 
   const featuredCategories = [
@@ -85,6 +92,7 @@ export default function BuyerDashboard({ fullName, onSignOut }: BuyerDashboardPr
     { nameKey: 'marketplace.fruits', emoji: '🍎', count: categoryCounts.fruits, href: '/marketplace?category=fruits' },
     { nameKey: 'marketplace.grains', emoji: '🌾', count: categoryCounts.grains, href: '/marketplace?category=grains' },
     { nameKey: 'lands.title', emoji: '🏞️', count: categoryCounts.lands, href: '/lands' },
+    { nameKey: 'buyer.agriInputs', emoji: '🌱', count: 20, href: '/agri-inputs' },
   ];
 
   return (
@@ -106,7 +114,7 @@ export default function BuyerDashboard({ fullName, onSignOut }: BuyerDashboardPr
         <ProfileSetupCard role="buyer" />
 
         <h2 className="text-xl font-serif font-semibold text-foreground mb-4">{t('buyer.featuredCategories')}</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           {featuredCategories.map((category) => (
             <Link key={category.nameKey} to={category.href}>
               <Card className="hover:shadow-card transition-all cursor-pointer hover:-translate-y-1">
