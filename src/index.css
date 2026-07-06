@@ -1,117 +1,125 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* AgriSmart Design System - Agricultural Technology Theme */
+/* AgriSmart Design System — Premium Agri-Tech (Emerald + Glassmorphism) */
 
 @layer base {
   :root {
-    /* Forest Green Primary */
-    --primary: 142 55% 28%;
-    --primary-foreground: 0 0% 100%;
-    
-    /* Warm Earth Background */
-    --background: 45 30% 97%;
-    --foreground: 142 30% 15%;
+    /* Light mode — soft cloud with emerald primary */
+    --background: 150 30% 98%;
+    --foreground: 155 40% 10%;
 
-    /* Cards with soft cream */
     --card: 0 0% 100%;
-    --card-foreground: 142 30% 15%;
+    --card-foreground: 155 40% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 142 30% 15%;
+    --popover-foreground: 155 40% 10%;
 
-    /* Golden Accent */
-    --secondary: 42 87% 55%;
-    --secondary-foreground: 142 30% 15%;
+    /* Emerald primary #22C55E */
+    --primary: 142 71% 45%;
+    --primary-foreground: 155 40% 6%;
 
-    /* Soft sage muted */
-    --muted: 142 15% 92%;
-    --muted-foreground: 142 15% 45%;
+    /* Deep green secondary #16A34A */
+    --secondary: 142 76% 36%;
+    --secondary-foreground: 0 0% 100%;
 
-    /* Fresh green accent */
-    --accent: 142 40% 90%;
-    --accent-foreground: 142 55% 25%;
+    --muted: 150 20% 94%;
+    --muted-foreground: 155 15% 40%;
 
-    --destructive: 0 84% 60%;
+    /* Lime accent #84CC16 */
+    --accent: 82 84% 42%;
+    --accent-foreground: 155 40% 6%;
+
+    --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 142 20% 88%;
-    --input: 142 20% 88%;
-    --ring: 142 55% 28%;
+    --border: 150 20% 88%;
+    --input: 150 20% 90%;
+    --ring: 142 71% 45%;
 
-    --radius: 0.75rem;
+    --radius: 1.25rem;
 
-    /* Custom AgriSmart Colors */
-    --agri-forest: 142 55% 28%;
-    --agri-sage: 142 30% 75%;
+    /* AgriSmart tokens (kept for legacy references) */
+    --agri-forest: 142 76% 36%;
+    --agri-sage: 142 40% 65%;
     --agri-gold: 42 87% 55%;
     --agri-earth: 28 40% 35%;
     --agri-cream: 45 30% 97%;
-    --agri-leaf: 120 45% 45%;
+    --agri-leaf: 142 71% 45%;
     --agri-water: 200 70% 50%;
     --agri-sun: 45 95% 60%;
 
     /* Gradients */
-    --gradient-hero: linear-gradient(135deg, hsl(142 55% 28%) 0%, hsl(142 40% 38%) 50%, hsl(120 45% 35%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(42 87% 55%) 0%, hsl(35 90% 50%) 100%);
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(45 30% 98%) 100%);
-    
+    --gradient-hero: linear-gradient(135deg, hsl(142 71% 45%) 0%, hsl(142 76% 36%) 55%, hsl(160 84% 24%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(82 84% 42%) 0%, hsl(142 71% 45%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100% / 0.9) 0%, hsl(150 30% 98% / 0.6) 100%);
+    --gradient-text: linear-gradient(135deg, hsl(142 71% 55%) 0%, hsl(82 84% 55%) 100%);
+
+    --glow-primary: 0 0 40px hsl(142 71% 45% / 0.35);
+
     /* Shadows */
-    --shadow-soft: 0 4px 20px -4px hsl(142 30% 15% / 0.1);
-    --shadow-card: 0 8px 32px -8px hsl(142 30% 15% / 0.12);
-    --shadow-elevated: 0 16px 48px -12px hsl(142 30% 15% / 0.18);
+    --shadow-soft: 0 4px 20px -4px hsl(155 40% 10% / 0.08);
+    --shadow-card: 0 12px 40px -12px hsl(155 40% 10% / 0.14);
+    --shadow-elevated: 0 24px 60px -20px hsl(155 40% 10% / 0.22);
 
     /* Sidebar */
-    --sidebar-background: 142 25% 12%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 42 87% 55%;
-    --sidebar-primary-foreground: 142 30% 15%;
-    --sidebar-accent: 142 30% 20%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 142 20% 20%;
-    --sidebar-ring: 42 87% 55%;
+    --sidebar-background: 155 40% 8%;
+    --sidebar-foreground: 150 20% 88%;
+    --sidebar-primary: 142 71% 45%;
+    --sidebar-primary-foreground: 155 40% 6%;
+    --sidebar-accent: 155 30% 14%;
+    --sidebar-accent-foreground: 150 20% 92%;
+    --sidebar-border: 155 25% 18%;
+    --sidebar-ring: 142 71% 45%;
   }
 
   .dark {
-    --background: 142 25% 8%;
-    --foreground: 45 30% 95%;
+    /* Dark mode — Obsidian green (#020603 base, emerald primary) */
+    --background: 150 40% 3%;
+    --foreground: 150 15% 92%;
 
-    --card: 142 25% 12%;
-    --card-foreground: 45 30% 95%;
+    --card: 155 30% 7%;
+    --card-foreground: 150 15% 92%;
 
-    --popover: 142 25% 12%;
-    --popover-foreground: 45 30% 95%;
+    --popover: 155 35% 6%;
+    --popover-foreground: 150 15% 92%;
 
-    --primary: 142 50% 45%;
-    --primary-foreground: 142 30% 10%;
+    --primary: 142 71% 45%;
+    --primary-foreground: 150 40% 6%;
 
-    --secondary: 42 80% 50%;
-    --secondary-foreground: 142 30% 10%;
+    --secondary: 142 76% 36%;
+    --secondary-foreground: 150 15% 96%;
 
-    --muted: 142 20% 18%;
-    --muted-foreground: 142 15% 65%;
+    --muted: 155 20% 12%;
+    --muted-foreground: 150 10% 60%;
 
-    --accent: 142 25% 20%;
-    --accent-foreground: 142 40% 85%;
+    --accent: 82 60% 40%;
+    --accent-foreground: 150 40% 6%;
 
-    --destructive: 0 70% 50%;
+    --destructive: 0 72% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 142 20% 20%;
-    --input: 142 20% 20%;
-    --ring: 142 50% 45%;
+    --border: 150 15% 14%;
+    --input: 150 15% 14%;
+    --ring: 142 71% 45%;
 
-    --sidebar-background: 142 30% 6%;
-    --sidebar-foreground: 45 30% 95%;
-    --sidebar-primary: 42 80% 50%;
-    --sidebar-primary-foreground: 142 30% 10%;
-    --sidebar-accent: 142 25% 15%;
-    --sidebar-accent-foreground: 45 30% 95%;
-    --sidebar-border: 142 20% 15%;
-    --sidebar-ring: 42 80% 50%;
+    --gradient-hero: linear-gradient(135deg, hsl(142 71% 45%) 0%, hsl(160 84% 30%) 55%, hsl(155 60% 18%) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(155 30% 8% / 0.7) 0%, hsl(150 40% 4% / 0.5) 100%);
+    --gradient-text: linear-gradient(135deg, hsl(142 71% 55%) 0%, hsl(82 84% 55%) 100%);
+
+    --shadow-soft: 0 4px 20px -4px hsl(0 0% 0% / 0.5);
+    --shadow-card: 0 12px 40px -12px hsl(0 0% 0% / 0.6);
+    --shadow-elevated: 0 24px 60px -20px hsl(142 71% 45% / 0.15);
+
+    --sidebar-background: 150 40% 4%;
+    --sidebar-foreground: 150 15% 88%;
+    --sidebar-primary: 142 71% 45%;
+    --sidebar-primary-foreground: 150 40% 6%;
+    --sidebar-accent: 155 25% 10%;
+    --sidebar-accent-foreground: 150 15% 92%;
+    --sidebar-border: 150 15% 12%;
+    --sidebar-ring: 142 71% 45%;
   }
 }
 
@@ -122,17 +130,19 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    letter-spacing: -0.02em;
   }
 }
 
 @layer utilities {
   .text-gradient-hero {
-    background: var(--gradient-hero);
+    background: var(--gradient-text);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -158,6 +168,22 @@
     box-shadow: var(--shadow-elevated);
   }
 
+  .glow-primary {
+    box-shadow: var(--glow-primary);
+  }
+
+  .glass {
+    @apply bg-card/60 backdrop-blur-xl border border-border/60;
+  }
+
+  .glass-strong {
+    @apply bg-card/80 backdrop-blur-2xl border border-border/70;
+  }
+
+  .glass-subtle {
+    @apply bg-card/40 backdrop-blur-md border border-border/40;
+  }
+
   .animate-float {
     animation: float 6s ease-in-out infinite;
   }
@@ -169,6 +195,14 @@
   .animate-scale-in {
     animation: scaleIn 0.4s ease-out forwards;
   }
+
+  .animate-drift {
+    animation: drift 18s ease-in-out infinite;
+  }
+
+  .animate-pulse-glow {
+    animation: pulseGlow 3s ease-in-out infinite;
+  }
 }
 
 @keyframes float {
@@ -178,6 +212,17 @@
   50% {
     transform: translateY(-10px);
   }
+}
+
+@keyframes drift {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(30px, -20px) rotate(8deg); }
+  66% { transform: translate(-20px, 15px) rotate(-6deg); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 20px hsl(var(--primary) / 0.3); }
+  50% { box-shadow: 0 0 40px hsl(var(--primary) / 0.6); }
 }
 
 @keyframes fadeUp {
