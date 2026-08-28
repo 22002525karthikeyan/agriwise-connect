@@ -177,13 +177,14 @@ export default function Lands() {
               </div>
             </div>
             
-            {profile?.role === 'landowner' && (
+            {(profile?.role === 'landowner' || profile?.role === 'farmer') && (
               <AddLandDialog
                 isOpen={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
                 onSubmit={handleAddLand}
               />
             )}
+
           </div>
         </div>
       </header>
