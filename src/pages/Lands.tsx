@@ -329,8 +329,11 @@ export default function Lands() {
                 land={land}
                 isBuyer={profile?.role === 'buyer'}
                 isLoggedIn={!!user}
+                isOwner={!!user && land.owner_id === user.id}
                 onContactOwner={handleContactOwner}
                 onViewMap={handleViewMap}
+                onDelete={handleDeleteLand}
+
               />
             ))}
           </div>
