@@ -136,6 +136,26 @@ export default function Lands() {
     setMapDialogOpen(true);
   };
 
+  const handleDeleteLand = async (land: Land) => {
+    const { error } = await supabase.from('lands').delete().eq('id', land.id);
+
+    if (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to remove land listing',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setLands((prev) => prev.filter((l) => l.id !== land.id));
+    toast({
+      title: 'Removed',
+      description: 'Land listing deleted successfully',
+    });
+  };
+
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
