@@ -79,8 +79,17 @@ export function LandCard({ land, isBuyer, isLoggedIn, isOwner, onContactOwner, o
               Get Contact
             </Button>
           )}
+          {isOwner && onDelete && (
+            <DeleteButton
+              label="Remove"
+              title="Remove this land listing?"
+              description={`"${land.title}" will be permanently deleted from the listings.`}
+              onConfirm={() => onDelete(land)}
+            />
+          )}
         </div>
       </CardContent>
     </Card>
   );
 }
+
