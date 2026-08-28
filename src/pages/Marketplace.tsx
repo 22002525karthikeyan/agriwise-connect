@@ -11,6 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, ShoppingBag, MapPin, Package, Plus, Leaf, ShoppingCart, Minus } from 'lucide-react';
+import { DeleteButton } from '@/components/common/DeleteButton';
+
 
 interface Listing {
   id: string;
