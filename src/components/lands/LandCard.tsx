@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MapPin, Droplets, Ruler, Phone, Map } from 'lucide-react';
+import { DeleteButton } from '@/components/common/DeleteButton';
 
 interface Land {
   id: string;
@@ -21,11 +22,14 @@ interface LandCardProps {
   land: Land;
   isBuyer: boolean;
   isLoggedIn: boolean;
+  isOwner?: boolean;
   onContactOwner: (land: Land) => void;
   onViewMap: (land: Land) => void;
+  onDelete?: (land: Land) => void;
 }
 
-export function LandCard({ land, isBuyer, isLoggedIn, onContactOwner, onViewMap }: LandCardProps) {
+export function LandCard({ land, isBuyer, isLoggedIn, isOwner, onContactOwner, onViewMap, onDelete }: LandCardProps) {
+
   return (
     <Card className="overflow-hidden hover:shadow-card transition-shadow">
       <div className="h-48 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center relative">
