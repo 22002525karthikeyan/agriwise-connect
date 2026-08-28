@@ -181,6 +181,41 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
     ));
   };
 
+  const handleDeleteLand = async (landId: string) => {
+    const { error } = await supabase.from('lands').delete().eq('id', landId);
+
+    if (error) {
+      toast({
+        title: t('common.error') || 'Error',
+        description: 'Failed to remove land listing',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setLands(prev => prev.filter(l => l.id !== landId));
+    toast({
+      title: 'Removed',
+      description: 'Land listing deleted successfully',
+    });
+  };
+
+  const handleDeleteInquiry = async (inquiryId: string) => {
+    const { error } = await supabase.from('buyer_inquiries').delete().eq('id', inquiryId);
+
+    if (error) {
+      toast({
+        title: t('common.error') || 'Error',
+        description: 'Failed to remove inquiry',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setInquiries(prev => prev.filter(i => i.id !== inquiryId));
+  };
+
+
   const unreadCount = inquiries.filter(i => !i.is_read).length;
   const hasContactDetails = profileData.phone && profileData.phone.length > 0;
 
