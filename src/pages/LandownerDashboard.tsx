@@ -387,17 +387,27 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
                         })}
                       </p>
                     </div>
-                    {!inquiry.is_read && (
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => markAsRead(inquiry.id)}
-                        className="text-primary"
-                      >
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                        {t('landowner.markRead') || 'Mark Read'}
-                      </Button>
-                    )}
+                    <div className="flex items-center gap-1 shrink-0">
+                      {!inquiry.is_read && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => markAsRead(inquiry.id)}
+                          className="text-primary"
+                        >
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          {t('landowner.markRead') || 'Mark Read'}
+                        </Button>
+                      )}
+                      <DeleteButton
+                        variant="ghost"
+                        size="icon"
+                        title="Remove this inquiry?"
+                        description="This inquiry will be permanently deleted."
+                        onConfirm={() => handleDeleteInquiry(inquiry.id)}
+                      />
+                    </div>
+
                   </div>
                 </div>
               ))}
