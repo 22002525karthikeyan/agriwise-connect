@@ -8,9 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { MapPin, Plus, Eye, Layers, TrendingUp, Bell, CheckCircle, User, Phone, Edit } from 'lucide-react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { DeleteButton } from '@/components/common/DeleteButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+
 
 interface LandownerDashboardProps {
   fullName: string | null;
@@ -181,6 +183,41 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
     ));
   };
 
+  const handleDeleteLand = async (landId: string) => {
+    const { error } = await supabase.from('lands').delete().eq('id', landId);
+
+    if (error) {
+      toast({
+        title: t('common.error') || 'Error',
+        description: 'Failed to remove land listing',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setLands(prev => prev.filter(l => l.id !== landId));
+    toast({
+      title: 'Removed',
+      description: 'Land listing deleted successfully',
+    });
+  };
+
+  const handleDeleteInquiry = async (inquiryId: string) => {
+    const { error } = await supabase.from('buyer_inquiries').delete().eq('id', inquiryId);
+
+    if (error) {
+      toast({
+        title: t('common.error') || 'Error',
+        description: 'Failed to remove inquiry',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setInquiries(prev => prev.filter(i => i.id !== inquiryId));
+  };
+
+
   const unreadCount = inquiries.filter(i => !i.is_read).length;
   const hasContactDetails = profileData.phone && profileData.phone.length > 0;
 
@@ -350,17 +387,27 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
                         })}
                       </p>
                     </div>
-                    {!inquiry.is_read && (
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => markAsRead(inquiry.id)}
-                        className="text-primary"
-                      >
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                        {t('landowner.markRead') || 'Mark Read'}
-                      </Button>
-                    )}
+                    <div className="flex items-center gap-1 shrink-0">
+                      {!inquiry.is_read && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => markAsRead(inquiry.id)}
+                          className="text-primary"
+                        >
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                          {t('landowner.markRead') || 'Mark Read'}
+                        </Button>
+                      )}
+                      <DeleteButton
+                        variant="ghost"
+                        size="icon"
+                        title="Remove this inquiry?"
+                        description="This inquiry will be permanently deleted."
+                        onConfirm={() => handleDeleteInquiry(inquiry.id)}
+                      />
+                    </div>
+
                   </div>
                 </div>
               ))}
@@ -442,7 +489,16 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
                   {land.soil_type && (
                     <p className="text-xs text-muted-foreground mt-2">{t('lands.soilType')}: {land.soil_type}</p>
                   )}
+                  <div className="flex justify-end mt-4">
+                    <DeleteButton
+                      label="Remove"
+                      title="Remove this land listing?"
+                      description={`"${land.title}" will be permanently deleted.`}
+                      onConfirm={() => handleDeleteLand(land.id)}
+                    />
+                  </div>
                 </CardContent>
+
               </Card>
             ))}
           </div>

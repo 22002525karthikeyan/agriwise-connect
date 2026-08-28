@@ -136,6 +136,26 @@ export default function Lands() {
     setMapDialogOpen(true);
   };
 
+  const handleDeleteLand = async (land: Land) => {
+    const { error } = await supabase.from('lands').delete().eq('id', land.id);
+
+    if (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to remove land listing',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setLands((prev) => prev.filter((l) => l.id !== land.id));
+    toast({
+      title: 'Removed',
+      description: 'Land listing deleted successfully',
+    });
+  };
+
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -157,13 +177,14 @@ export default function Lands() {
               </div>
             </div>
             
-            {profile?.role === 'landowner' && (
+            {(profile?.role === 'landowner' || profile?.role === 'farmer') && (
               <AddLandDialog
                 isOpen={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
                 onSubmit={handleAddLand}
               />
             )}
+
           </div>
         </div>
       </header>
@@ -308,8 +329,11 @@ export default function Lands() {
                 land={land}
                 isBuyer={profile?.role === 'buyer'}
                 isLoggedIn={!!user}
+                isOwner={!!user && land.owner_id === user.id}
                 onContactOwner={handleContactOwner}
                 onViewMap={handleViewMap}
+                onDelete={handleDeleteLand}
+
               />
             ))}
           </div>
