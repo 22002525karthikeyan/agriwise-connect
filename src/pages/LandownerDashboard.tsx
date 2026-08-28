@@ -479,7 +479,16 @@ export default function LandownerDashboard({ fullName, onSignOut }: LandownerDas
                   {land.soil_type && (
                     <p className="text-xs text-muted-foreground mt-2">{t('lands.soilType')}: {land.soil_type}</p>
                   )}
+                  <div className="flex justify-end mt-4">
+                    <DeleteButton
+                      label="Remove"
+                      title="Remove this land listing?"
+                      description={`"${land.title}" will be permanently deleted.`}
+                      onConfirm={() => handleDeleteLand(land.id)}
+                    />
+                  </div>
                 </CardContent>
+
               </Card>
             ))}
           </div>
