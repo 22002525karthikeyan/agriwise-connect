@@ -552,6 +552,15 @@ export default function Marketplace() {
                         Buy Now
                       </Button>
                     )}
+                    {user && listing.seller_id === user.id && (
+                      <DeleteButton
+                        label="Remove"
+                        title="Remove this listing?"
+                        description={`"${listing.crop_name}" will be permanently deleted from the marketplace.`}
+                        onConfirm={() => handleDeleteListing(listing.id)}
+                      />
+                    )}
+
                   </div>
                 </CardContent>
               </Card>
