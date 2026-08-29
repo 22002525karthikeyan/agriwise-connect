@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, ShoppingBag, Search, Leaf } from 'lucide-react';
+import { MapPin, ShoppingBag, Search, Leaf, Package } from 'lucide-react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { ProfileSetupCard } from '@/components/dashboard/ProfileSetupCard';
 import { supabase } from '@/integrations/supabase/client';
