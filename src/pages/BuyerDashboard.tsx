@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, ShoppingBag, Search, Leaf } from 'lucide-react';
+import { MapPin, ShoppingBag, Search, Leaf, Package } from 'lucide-react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { ProfileSetupCard } from '@/components/dashboard/ProfileSetupCard';
 import { supabase } from '@/integrations/supabase/client';
@@ -85,7 +85,15 @@ export default function BuyerDashboard({ fullName, onSignOut }: BuyerDashboardPr
       href: '/agri-inputs',
       color: 'bg-agri-gold/10 text-agri-earth',
     },
+    {
+      titleKey: 'My Orders',
+      descKey: 'Track your purchases and remove old orders',
+      icon: Package,
+      href: '/my-orders',
+      color: 'bg-primary/10 text-primary',
+    },
   ];
+
 
   const featuredCategories = [
     { nameKey: 'marketplace.vegetables', emoji: '🥬', count: categoryCounts.vegetables, href: '/marketplace?category=vegetables' },

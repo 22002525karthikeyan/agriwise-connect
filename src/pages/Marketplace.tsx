@@ -127,6 +127,27 @@ export default function Marketplace() {
     }
   };
 
+  const handleDeleteListing = async (listingId: string) => {
+    const { error } = await supabase.from('marketplace_listings').delete().eq('id', listingId);
+
+    if (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to remove listing',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setListings((prev) => prev.filter((l) => l.id !== listingId));
+    toast({
+      title: 'Removed',
+      description: 'Your listing has been deleted',
+    });
+  };
+
+
+
   const handlePlaceOrder = async () => {
     if (!user || !selectedListing) return;
 
@@ -531,6 +552,15 @@ export default function Marketplace() {
                         Buy Now
                       </Button>
                     )}
+                    {user && listing.seller_id === user.id && (
+                      <DeleteButton
+                        label="Remove"
+                        title="Remove this listing?"
+                        description={`"${listing.crop_name}" will be permanently deleted from the marketplace.`}
+                        onConfirm={() => handleDeleteListing(listing.id)}
+                      />
+                    )}
+
                   </div>
                 </CardContent>
               </Card>

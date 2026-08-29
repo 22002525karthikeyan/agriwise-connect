@@ -15,6 +15,8 @@ import Marketplace from "./pages/Marketplace";
 import WaterManagement from "./pages/WaterManagement";
 import ProfitEstimation from "./pages/ProfitEstimation";
 import Orders from "./pages/Orders";
+import MyOrders from "./pages/MyOrders";
+
 import AgriInputsStore from "./pages/AgriInputsStore";
 import NotFound from "./pages/NotFound";
 
@@ -38,7 +40,9 @@ const App = () => (
             <Route path="/marketplace" element={<Marketplace />} />
             <Route path="/water-management" element={<WaterManagement />} />
             <Route path="/profit-estimation" element={<ProfitEstimation />} />
-            <Route path="/orders" element={<Orders />} />
+           <Route path="/orders" element={<Orders />} />
+           <Route path="/my-orders" element={<MyOrders />} />
+
             <Route path="/agri-inputs" element={<AgriInputsStore />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
