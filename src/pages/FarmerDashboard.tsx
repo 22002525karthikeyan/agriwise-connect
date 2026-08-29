@@ -4,8 +4,9 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Sprout, Bug, Droplets, ShoppingBag, TrendingUp, Calculator, Package,
-  Thermometer, Activity, Gauge, Waves, Power
+  Thermometer, Activity, Gauge, Waves, Power, MapPin
 } from 'lucide-react';
+
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { WeatherCard } from '@/components/dashboard/WeatherCard';
 import { ProfileSetupCard } from '@/components/dashboard/ProfileSetupCard';
