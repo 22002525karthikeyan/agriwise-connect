@@ -85,7 +85,15 @@ export default function BuyerDashboard({ fullName, onSignOut }: BuyerDashboardPr
       href: '/agri-inputs',
       color: 'bg-agri-gold/10 text-agri-earth',
     },
+    {
+      titleKey: 'My Orders',
+      descKey: 'Track your purchases and remove old orders',
+      icon: Package,
+      href: '/my-orders',
+      color: 'bg-primary/10 text-primary',
+    },
   ];
+
 
   const featuredCategories = [
     { nameKey: 'marketplace.vegetables', emoji: '🥬', count: categoryCounts.vegetables, href: '/marketplace?category=vegetables' },
