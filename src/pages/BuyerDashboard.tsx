@@ -169,6 +169,56 @@ export default function BuyerDashboard({ fullName, onSignOut }: BuyerDashboardPr
         {/* Profile Setup Alert */}
         <ProfileSetupCard role="buyer" />
 
+        {/* Landowner Contacts */}
+        {landownerContacts.length > 0 && (
+          <>
+            <h2 className="text-xl font-serif font-semibold text-foreground mb-4 mt-8">Landowner Contacts</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+              {landownerContacts.map((contact) => (
+                <Card key={contact.id}>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                        <User className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-base font-serif">{contact.ownerName || 'Landowner'}</CardTitle>
+                        <CardDescription className="flex items-center gap-1 text-xs">
+                          <MapPin className="w-3 h-3" />
+                          {contact.landTitle}{contact.landLocation ? ` — ${contact.landLocation}` : ''}
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    {contact.ownerPhone ? (
+                      <a
+                        href={`tel:${contact.ownerPhone}`}
+                        className="flex items-center gap-3 p-2.5 bg-agri-leaf/10 rounded-lg hover:bg-agri-leaf/20 transition-colors"
+                      >
+                        <Phone className="w-4 h-4 text-agri-leaf" />
+                        <span className="text-sm font-medium text-foreground">{contact.ownerPhone}</span>
+                      </a>
+                    ) : (
+                      <p className="text-sm text-muted-foreground p-2.5">Phone not provided</p>
+                    )}
+                    {contact.ownerEmail && (
+                      <a
+                        href={`mailto:${contact.ownerEmail}`}
+                        className="flex items-center gap-3 p-2.5 bg-primary/10 rounded-lg hover:bg-primary/20 transition-colors"
+                      >
+                        <Mail className="w-4 h-4 text-primary" />
+                        <span className="text-sm font-medium text-foreground truncate">{contact.ownerEmail}</span>
+                      </a>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </>
+        )}
+
+
         <h2 className="text-xl font-serif font-semibold text-foreground mb-4">{t('buyer.featuredCategories')}</h2>
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           {featuredCategories.map((category) => (
