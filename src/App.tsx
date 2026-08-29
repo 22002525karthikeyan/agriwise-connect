@@ -15,6 +15,8 @@ import Marketplace from "./pages/Marketplace";
 import WaterManagement from "./pages/WaterManagement";
 import ProfitEstimation from "./pages/ProfitEstimation";
 import Orders from "./pages/Orders";
+import MyOrders from "./pages/MyOrders";
+
 import AgriInputsStore from "./pages/AgriInputsStore";
 import NotFound from "./pages/NotFound";
 
