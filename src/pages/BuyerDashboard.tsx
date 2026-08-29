@@ -2,28 +2,76 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { MapPin, ShoppingBag, Search, Leaf, Package } from 'lucide-react';
+import { MapPin, ShoppingBag, Search, Leaf, Package, Phone, Mail, User } from 'lucide-react';
 import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { ProfileSetupCard } from '@/components/dashboard/ProfileSetupCard';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface BuyerDashboardProps {
   fullName: string | null;
   onSignOut: () => void;
 }
 
+interface LandownerContact {
+  id: string;
+  landTitle: string;
+  landLocation: string;
+  ownerName: string | null;
+  ownerPhone: string | null;
+  ownerEmail: string | null;
+}
+
 export default function BuyerDashboard({ fullName, onSignOut }: BuyerDashboardProps) {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const [categoryCounts, setCategoryCounts] = useState({
     vegetables: 0,
     fruits: 0,
     grains: 0,
     lands: 0,
   });
+  const [landownerContacts, setLandownerContacts] = useState<LandownerContact[]>([]);
 
   useEffect(() => {
     fetchCategoryCounts();
-  }, []);
+    if (user) fetchLandownerContacts();
+  }, [user]);
+
+  const fetchLandownerContacts = async () => {
+    if (!user) return;
+
+    const { data: inquiries } = await supabase
+      .from('buyer_inquiries')
+      .select('id, listing_id, seller_id')
+      .eq('buyer_id', user.id)
+      .eq('listing_type', 'land');
+
+    if (!inquiries || inquiries.length === 0) return;
+
+    const landIds = [...new Set(inquiries.map((i) => i.listing_id))];
+    const sellerIds = [...new Set(inquiries.map((i) => i.seller_id))];
+
+    const [{ data: landsData }, { data: profilesData }] = await Promise.all([
+      supabase.from('lands').select('id, title, location').in('id', landIds),
+      supabase.from('profiles').select('id, full_name, phone, email').in('id', sellerIds),
+    ]);
+
+    const contacts: LandownerContact[] = inquiries.map((inquiry) => {
+      const land = landsData?.find((l) => l.id === inquiry.listing_id);
+      const owner = profilesData?.find((p) => p.id === inquiry.seller_id);
+      return {
+        id: inquiry.id,
+        landTitle: land?.title || 'Land listing',
+        landLocation: land?.location || '',
+        ownerName: owner?.full_name || null,
+        ownerPhone: owner?.phone || null,
+        ownerEmail: owner?.email || null,
+      };
+    });
+
+    setLandownerContacts(contacts);
+  };
 
   const fetchCategoryCounts = async () => {
     // Fetch produce counts by category
