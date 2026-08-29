@@ -70,7 +70,14 @@ export default function FarmerDashboard({ fullName, onSignOut }: FarmerDashboard
       icon: Package,
       href: '/orders',
     },
+    {
+      titleKey: 'lands.title',
+      descKey: 'features.landRentalDesc',
+      icon: MapPin,
+      href: '/lands',
+    },
   ];
+
 
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
