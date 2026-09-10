@@ -106,6 +106,7 @@ export default function Lands() {
       price_per_month: parseFloat(newLand.price_per_month),
       latitude: newLand.latitude,
       longitude: newLand.longitude,
+      image_url: imagePath,
     });
 
     if (error) {
