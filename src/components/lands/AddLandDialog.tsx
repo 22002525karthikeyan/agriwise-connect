@@ -157,6 +157,40 @@ export function AddLandDialog({ isOpen, onOpenChange, onSubmit }: AddLandDialogP
             </div>
           </div>
 
+          {/* Land Photo */}
+          <div className="space-y-2">
+            <Label htmlFor="land-image">Land Photo</Label>
+            {previewUrl ? (
+              <div className="relative rounded-xl overflow-hidden border">
+                <img src={previewUrl} alt="Selected land photo preview" className="w-full h-40 object-cover" />
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="secondary"
+                  className="absolute top-2 right-2"
+                  onClick={clearImage}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            ) : (
+              <label
+                htmlFor="land-image"
+                className="flex flex-col items-center justify-center gap-2 h-28 rounded-xl border border-dashed cursor-pointer text-muted-foreground hover:bg-muted/50 transition-colors"
+              >
+                <ImagePlus className="w-6 h-6" />
+                <span className="text-sm">Add a photo of your land</span>
+              </label>
+            )}
+            <Input
+              id="land-image"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageChange}
+            />
+          </div>
+
           {/* Map Location Picker */}
           <div className="space-y-2">
             <Label>Land Location on Map</Label>
