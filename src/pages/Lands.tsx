@@ -72,8 +72,28 @@ export default function Lands() {
     price_per_month: string;
     latitude: number | null;
     longitude: number | null;
+    imageFile: File | null;
   }) => {
     if (!user) return;
+
+    let imagePath: string | null = null;
+    if (newLand.imageFile) {
+      const ext = newLand.imageFile.name.split('.').pop() || 'jpg';
+      const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('land-images')
+        .upload(path, newLand.imageFile, { contentType: newLand.imageFile.type });
+
+      if (uploadError) {
+        toast({
+          title: 'Photo upload failed',
+          description: 'The listing was not saved. Please try a different image.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      imagePath = path;
+    }
 
     const { error } = await supabase.from('lands').insert({
       owner_id: user.id,
