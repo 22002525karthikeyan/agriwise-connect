@@ -169,6 +169,10 @@ export default function Lands() {
       return;
     }
 
+    if (land.image_url && !land.image_url.startsWith('http')) {
+      await supabase.storage.from('land-images').remove([land.image_url]);
+    }
+
     setLands((prev) => prev.filter((l) => l.id !== land.id));
     toast({
       title: 'Removed',
