@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { LocationPicker } from './LandMap';
-import { Plus } from 'lucide-react';
+import { Plus, ImagePlus, X } from 'lucide-react';
 
 interface NewLandData {
   title: string;
@@ -18,6 +18,7 @@ interface NewLandData {
   price_per_month: string;
   latitude: number | null;
   longitude: number | null;
+  imageFile: File | null;
 }
 
 interface AddLandDialogProps {
