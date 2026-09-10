@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MapPin, Droplets, Ruler, Phone, Map } from 'lucide-react';
 import { DeleteButton } from '@/components/common/DeleteButton';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Land {
   id: string;
