@@ -27,38 +27,45 @@ interface AddLandDialogProps {
   onSubmit: (data: NewLandData) => void;
 }
 
+const emptyLand: NewLandData = {
+  title: '',
+  description: '',
+  location: '',
+  area_acres: '',
+  soil_type: '',
+  water_availability: '',
+  price_per_month: '',
+  latitude: null,
+  longitude: null,
+  imageFile: null,
+};
+
 export function AddLandDialog({ isOpen, onOpenChange, onSubmit }: AddLandDialogProps) {
-  const [newLand, setNewLand] = useState<NewLandData>({
-    title: '',
-    description: '',
-    location: '',
-    area_acres: '',
-    soil_type: '',
-    water_availability: '',
-    price_per_month: '',
-    latitude: null,
-    longitude: null,
-  });
+  const [newLand, setNewLand] = useState<NewLandData>(emptyLand);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(newLand);
-    setNewLand({
-      title: '',
-      description: '',
-      location: '',
-      area_acres: '',
-      soil_type: '',
-      water_availability: '',
-      price_per_month: '',
-      latitude: null,
-      longitude: null,
-    });
+    setNewLand(emptyLand);
+    setPreviewUrl(null);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    setNewLand((prev) => ({ ...prev, imageFile: file }));
+    setPreviewUrl(file ? URL.createObjectURL(file) : null);
+  };
+
+  const clearImage = () => {
+    setNewLand((prev) => ({ ...prev, imageFile: null }));
+    setPreviewUrl(null);
   };
 
   const handleLocationChange = (lat: number, lng: number) => {
     setNewLand({ ...newLand, latitude: lat, longitude: lng });
   };
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
