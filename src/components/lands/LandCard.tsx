@@ -1,7 +1,9 @@
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { MapPin, Droplets, Ruler, Phone, Map } from 'lucide-react';
 import { DeleteButton } from '@/components/common/DeleteButton';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Land {
   id: string;
@@ -29,11 +31,38 @@ interface LandCardProps {
 }
 
 export function LandCard({ land, isBuyer, isLoggedIn, isOwner, onContactOwner, onViewMap, onDelete }: LandCardProps) {
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    const path = land.image_url;
+    if (!path) {
+      setImageSrc(null);
+      return;
+    }
+    if (path.startsWith('http')) {
+      setImageSrc(path);
+      return;
+    }
+    supabase.storage
+      .from('land-images')
+      .createSignedUrl(path, 60 * 60)
+      .then(({ data }) => {
+        if (active) setImageSrc(data?.signedUrl ?? null);
+      });
+    return () => {
+      active = false;
+    };
+  }, [land.image_url]);
 
   return (
     <Card className="overflow-hidden hover:shadow-card transition-shadow">
       <div className="h-48 bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center relative">
-        <MapPin className="w-16 h-16 text-primary/30" />
+        {imageSrc ? (
+          <img src={imageSrc} alt={`Land photo: ${land.title}`} className="w-full h-full object-cover" loading="lazy" />
+        ) : (
+          <MapPin className="w-16 h-16 text-primary/30" />
+        )}
         {land.latitude && land.longitude && (
           <Button
             size="sm"

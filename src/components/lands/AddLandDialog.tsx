@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { LocationPicker } from './LandMap';
-import { Plus } from 'lucide-react';
+import { Plus, ImagePlus, X } from 'lucide-react';
 
 interface NewLandData {
   title: string;
@@ -18,6 +18,7 @@ interface NewLandData {
   price_per_month: string;
   latitude: number | null;
   longitude: number | null;
+  imageFile: File | null;
 }
 
 interface AddLandDialogProps {
@@ -26,38 +27,45 @@ interface AddLandDialogProps {
   onSubmit: (data: NewLandData) => void;
 }
 
+const emptyLand: NewLandData = {
+  title: '',
+  description: '',
+  location: '',
+  area_acres: '',
+  soil_type: '',
+  water_availability: '',
+  price_per_month: '',
+  latitude: null,
+  longitude: null,
+  imageFile: null,
+};
+
 export function AddLandDialog({ isOpen, onOpenChange, onSubmit }: AddLandDialogProps) {
-  const [newLand, setNewLand] = useState<NewLandData>({
-    title: '',
-    description: '',
-    location: '',
-    area_acres: '',
-    soil_type: '',
-    water_availability: '',
-    price_per_month: '',
-    latitude: null,
-    longitude: null,
-  });
+  const [newLand, setNewLand] = useState<NewLandData>(emptyLand);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(newLand);
-    setNewLand({
-      title: '',
-      description: '',
-      location: '',
-      area_acres: '',
-      soil_type: '',
-      water_availability: '',
-      price_per_month: '',
-      latitude: null,
-      longitude: null,
-    });
+    setNewLand(emptyLand);
+    setPreviewUrl(null);
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+    setNewLand((prev) => ({ ...prev, imageFile: file }));
+    setPreviewUrl(file ? URL.createObjectURL(file) : null);
+  };
+
+  const clearImage = () => {
+    setNewLand((prev) => ({ ...prev, imageFile: null }));
+    setPreviewUrl(null);
   };
 
   const handleLocationChange = (lat: number, lng: number) => {
     setNewLand({ ...newLand, latitude: lat, longitude: lng });
   };
+
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -147,6 +155,40 @@ export function AddLandDialog({ isOpen, onOpenChange, onSubmit }: AddLandDialogP
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          {/* Land Photo */}
+          <div className="space-y-2">
+            <Label htmlFor="land-image">Land Photo</Label>
+            {previewUrl ? (
+              <div className="relative rounded-xl overflow-hidden border">
+                <img src={previewUrl} alt="Selected land photo preview" className="w-full h-40 object-cover" />
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="secondary"
+                  className="absolute top-2 right-2"
+                  onClick={clearImage}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+            ) : (
+              <label
+                htmlFor="land-image"
+                className="flex flex-col items-center justify-center gap-2 h-28 rounded-xl border border-dashed cursor-pointer text-muted-foreground hover:bg-muted/50 transition-colors"
+              >
+                <ImagePlus className="w-6 h-6" />
+                <span className="text-sm">Add a photo of your land</span>
+              </label>
+            )}
+            <Input
+              id="land-image"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageChange}
+            />
           </div>
 
           {/* Map Location Picker */}
